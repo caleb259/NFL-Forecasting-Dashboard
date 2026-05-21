@@ -1,5 +1,10 @@
 import pandas as pd
 import streamlit as st
+import sys
+
+sys.path.append("src")
+
+from team_info import get_team_logo, get_team_name, get_team_primary_color
 
 
 st.set_page_config(
@@ -79,6 +84,17 @@ try:
 
     st.header(selected_matchup)
 
+    home_team = selected_game["home_team"]
+    away_team = selected_game["away_team"]
+
+    home_logo = get_team_logo(home_team)
+    away_logo = get_team_logo(away_team)
+
+    home_name = get_team_name(home_team)
+    away_name = get_team_name(away_team)
+
+    home_color = get_team_primary_color(home_team)
+
     prediction_result = (
         "Correct" if selected_game["correct_prediction"] else "Incorrect"
     )
@@ -88,6 +104,44 @@ try:
     )
 
     away_win_probability_percent = 100 - home_win_probability_percent
+
+    st.markdown(
+        f"""
+        <div style="
+            border-left: 10px solid {home_color};
+            padding-left: 16px;
+            margin-bottom: 20px;
+        ">
+            <h2 style="margin-bottom: 0;">{away_team} at {home_team}</h2>
+            <p style="margin-top: 4px; color: #666;">
+                {away_name} at {home_name}
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    logo_col1, logo_col2, logo_col3 = st.columns([2, 1, 2])
+
+    with logo_col1:
+        if away_logo:
+            st.image(away_logo, width=110)
+        st.subheader(away_team)
+        st.write(away_name)
+
+    with logo_col2:
+        st.markdown(
+            "<h2 style='text-align: center; margin-top: 40px;'>VS</h2>",
+            unsafe_allow_html=True
+        )
+
+    with logo_col3:
+        if home_logo:
+            st.image(home_logo, width=110)
+        st.subheader(home_team)
+        st.write(home_name)
+
+    st.divider()
 
     col1, col2, col3, col4 = st.columns(4)
 
@@ -119,15 +173,17 @@ try:
 
     with score_col1:
         st.metric(
-            selected_game["away_team"],
+            f"{away_team} Score",
             int(selected_game["away_score"])
         )
+        st.caption(away_name)
 
     with score_col2:
         st.metric(
-            selected_game["home_team"],
+            f"{home_team} Score",
             int(selected_game["home_score"])
         )
+        st.caption(home_name)
 
     st.divider()
 
