@@ -1,8 +1,9 @@
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
 
-from data_loader import load_game_results, load_modeling_data, save_csv
+from data_loader import load_game_results, save_csv
 from elo import create_elo_features
+from feature_engineering import create_modeling_dataset
 
 
 
@@ -113,11 +114,12 @@ def main():
 
     target = "home_team_won"
 
-    print("Loading modeling data...")
-    modeling_data = load_modeling_data()
 
     print("Loading game results...")
     game_results = load_game_results()
+
+    print("Creating modeling dataset...")
+    modeling_data = create_modeling_dataset(game_results)
 
     print("Creating and merging Elo features...")
     modeling_data = add_elo_features(modeling_data, game_results)

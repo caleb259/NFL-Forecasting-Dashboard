@@ -281,3 +281,24 @@ Purpose:
 - Reduce repeated file loading code
 - Make project scripts easier to maintain
 - Prepare the project for a cleaner data pipeline
+
+## Reusable Feature Engineering Script
+
+A reusable feature engineering script was added to the project.
+
+Script created:
+- `src/feature_engineering.py`
+
+Functions included:
+- `create_team_game_rows()`
+- `add_team_results()`
+- `add_season_long_pregame_features()`
+- `add_recent_form_features()`
+- `create_home_away_features()`
+- `add_difference_features()`
+- `create_modeling_dataset()`
+
+Purpose:
+- Move feature engineering logic out of notebooks
+- Make the modeling pipeline easier to rerun
+- Prepare the project for future schedule and weekly data updates

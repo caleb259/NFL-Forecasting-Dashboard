@@ -261,6 +261,8 @@ NFL-Forecasting-Dashboard/
 - Built Streamlit dashboard
 - Added screenshots to README
 - Updated README with current project information
+- Created reusable feature engineering script
+- Refactored model training pipeline to rebuild modeling features automatically
 
 ## Current Limitations
 

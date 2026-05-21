@@ -106,6 +106,9 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Created `src/data_loader.py`.
 - Added reusable functions for loading and saving project data.
 - Refactored `train_model.py` to use `src/elo.py` and `src/data_loader.py`.
+- Created `src/feature_engineering.py`.
+- Moved feature engineering logic into reusable functions.
+- Refactored `src/train_model.py` so it can rebuild modeling features from game results.
 
 ### Streamlit Dashboard
 
