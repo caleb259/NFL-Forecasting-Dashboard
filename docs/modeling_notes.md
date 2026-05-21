@@ -102,3 +102,27 @@ Expanded training data accuracy: 62.46%
 
 Result:
 - To be updated after reviewing the model output.
+
+## EPA Feature Test
+
+This test added play-by-play EPA features to the model.
+
+New features included:
+
+- Offensive EPA/play difference
+- Defensive EPA allowed/play difference
+- Last-3-game offensive EPA/play difference
+- Last-3-game defensive EPA allowed/play difference
+
+Training seasons:
+- 2018–2024
+
+Testing season:
+- 2025
+
+Previous best accuracy: 62.46%
+
+EPA feature model accuracy: 61.40%
+
+Result:
+- To be updated after reviewing the model output.
