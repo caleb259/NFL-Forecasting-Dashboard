@@ -73,6 +73,16 @@ The Model Performance page shows:
 - Accuracy by confidence level
 - Full prediction results
 
+### Model Comparison
+
+The Model Comparison page shows:
+
+- Accuracy results from each model experiment
+- Current best model
+- Why Logistic Regression with Elo was selected
+- Comparison of Logistic Regression, Random Forest, and Gradient Boosting
+- Future modeling improvements
+
 ### How the Model Works
 
 This page explains the project in plain English, including:
@@ -246,7 +256,8 @@ NFL-Forecasting-Dashboard/
 │   ├── 1_Game_Breakdown.py
 │   ├── 2_Team_Dashboard.py
 │   ├── 3_Model_Performance.py
-│   └── 4_How_The_Model_Works.py
+│   ├── 4_Model_Comparison.py
+│   └── 5_How_The_Model_Works.py
 │
 └── src/
     └── train_model.py
