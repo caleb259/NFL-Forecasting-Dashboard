@@ -206,3 +206,23 @@ Elo feature model accuracy: 63.51%
 
 Result:
 - To be updated after reviewing the model output.
+
+## Updated Training Script with Elo
+
+After the Elo feature test improved accuracy to 63.51%, the reusable training script was updated.
+
+Updated script:
+- `src/train_model.py`
+
+Changes:
+- Uses `modeling_dataset_elo_2018_2025.csv`
+- Includes Elo difference features
+- Trains Logistic Regression on 2018–2024
+- Tests on 2025
+- Saves updated predictions to `data/predictions/best_logistic_regression_predictions.csv`
+
+Current best model:
+- Logistic Regression with Elo features
+
+Current best accuracy:
+- 63.51%

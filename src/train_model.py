@@ -44,6 +44,11 @@ def create_predictions(test_data, y_pred, y_prob):
             "home_score",
             "away_score",
             "home_team_won",
+            "home_elo_before",
+            "away_elo_before",
+            "elo_diff",
+            "home_elo_with_hfa_diff",
+            "elo_home_win_prob",
         ]
     ].copy()
 
@@ -72,7 +77,7 @@ def create_predictions(test_data, y_pred, y_prob):
 
 
 def main():
-    data_path = "data/processed/modeling_dataset_expanded_2018_2025.csv"
+    data_path = "data/processed/modeling_dataset_elo_2018_2025.csv"
     output_path = "data/predictions/best_logistic_regression_predictions.csv"
 
     features = [
@@ -84,6 +89,9 @@ def main():
         "last3_avg_points_allowed_diff",
         "last3_avg_point_diff_diff",
         "last3_win_pct_diff",
+        "elo_diff",
+        "home_elo_with_hfa_diff",
+        "elo_home_win_prob",
     ]
 
     target = "home_team_won"
@@ -100,7 +108,7 @@ def main():
     X_test = test_data[features]
     y_test = test_data[target]
 
-    print("Training Logistic Regression model...")
+    print("Training Logistic Regression model with Elo features...")
     model = train_model(X_train, y_train)
 
     print("Making predictions...")
@@ -112,6 +120,9 @@ def main():
     print()
     print("Model Results")
     print("-------------")
+    print("Model: Logistic Regression with Elo features")
+    print("Training seasons: 2018-2024")
+    print("Testing season: 2025")
     print(f"Accuracy: {accuracy:.2%}")
     print()
     print("Classification Report:")
