@@ -45,3 +45,21 @@ Possible improvements:
 - Add Elo ratings
 - Add rest and schedule features
 - Try stronger models after improving the features
+
+## Recent Form Feature Test
+
+This test added last-3-game features to the model.
+
+New features included:
+
+- Last 3 games average points scored difference
+- Last 3 games average points allowed difference
+- Last 3 games average point differential difference
+- Last 3 games win percentage difference
+
+Previous season-based baseline accuracy: 61.40%
+
+Recent-form model accuracy: 61.40%
+
+Result:
+- To be updated after reviewing the model output.
