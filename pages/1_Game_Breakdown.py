@@ -222,6 +222,16 @@ try:
             "Feature": "Elo-based home win probability",
             "Value": selected_game["elo_home_win_prob"],
             "Explanation": "The home team's expected win probability based only on Elo ratings."
+        },
+        {
+            "Feature": "Strength of schedule difference",
+            "Value": selected_game["strength_of_schedule_diff"],
+            "Explanation": "Home team's average previous opponent win percentage minus away team's average previous opponent win percentage."
+        },
+        {
+            "Feature": "Current opponent win percentage difference",
+            "Value": selected_game["current_opponent_win_pct_diff"],
+            "Explanation": "Home team's current opponent pregame win percentage minus away team's current opponent pregame win percentage."
         }
     ]
 
@@ -268,6 +278,35 @@ try:
     st.write(
         "Elo ratings estimate team strength over time. A higher Elo rating means the team has performed better based on previous results. "
         "The Elo home win probability is calculated before the game using both teams' ratings and a home-field advantage adjustment."
+    )
+
+    st.divider()
+
+    st.header("Strength of Schedule Summary")
+
+    sos_col1, sos_col2, sos_col3 = st.columns(3)
+
+    with sos_col1:
+        st.metric(
+            f"{selected_game['home_team']} Strength of Schedule",
+            f"{selected_game['home_strength_of_schedule_before']:.3f}"
+        )
+
+    with sos_col2:
+        st.metric(
+            f"{selected_game['away_team']} Strength of Schedule",
+            f"{selected_game['away_strength_of_schedule_before']:.3f}"
+        )
+
+    with sos_col3:
+        st.metric(
+            "Strength of Schedule Difference",
+            f"{selected_game['strength_of_schedule_diff']:.3f}"
+        )
+
+    st.write(
+        "Strength of schedule estimates how strong a team's previous opponents were before the game. "
+        "A higher value means the team had faced opponents with stronger pregame win percentages."
     )
 
     st.divider()

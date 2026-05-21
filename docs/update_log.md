@@ -135,7 +135,7 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 
 | Model | Training Data | Testing Data | Accuracy |
 |---|---|---|---:|
-| Logistic Regression with Elo features | 2018–2024 NFL seasons | 2025 NFL season | 63.51% |
+| Logistic Regression Elo and strength of schedule features | 2018–2024 NFL seasons | 2025 NFL season | 63.86% |
 
 ## Current Dashboard Pages
 

@@ -26,7 +26,7 @@ st.write(
 )
 
 st.info(
-    "Current best model: Logistic Regression with Elo features | Accuracy: 63.51%"
+    "Current best model: Logistic Regression with Elo and strength of schedule features | Accuracy: 63.86%"
 )
 
 st.divider()
@@ -119,6 +119,15 @@ st.markdown(
     """
 )
 
+st.subheader("Strength of Schedule Features")
+
+st.markdown(
+    """
+    - Strength of schedule difference
+    - Current opponent win percentage difference
+    """
+)
+
 st.divider()
 
 st.header("What Elo Means")
@@ -150,6 +159,19 @@ st.write(
 
 st.divider()
 
+st.header("What Strength of Schedule Means")
+
+st.write(
+    "Strength of schedule estimates how difficult a team's previous opponents were. "
+    "A team with strong results against difficult opponents may be more impressive than a team with similar results against weaker opponents."
+)
+
+st.write(
+    "In this project, strength of schedule is based on the average pregame win percentage of a team's previous opponents."
+)
+
+st.divider()
+
 st.header("Model Type")
 
 st.write(
@@ -175,7 +197,7 @@ st.divider()
 st.header("Model Accuracy")
 
 st.write(
-    "The current best model reached 63.51% accuracy when trained on the 2018–2024 seasons "
+    "The current best model reached 63.86% accuracy when trained on the 2018–2024 seasons "
     "and tested on the 2025 season."
 )
 
@@ -191,12 +213,13 @@ st.markdown(
     | Expanded training data | 62.46% |
     | EPA features | 61.40% |
     | Model comparison best | 62.46% |
-    | Elo features | 63.51% |
+    | Elo features | 63.86% |
+    | Strength of schedule features | 63.86% |
     """
 )
 
 st.success(
-    "The Elo feature model is currently the best-performing version."
+    "The strength of schedule feature model is currently the best-performing version."
 )
 
 st.divider()

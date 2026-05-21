@@ -68,6 +68,10 @@ def create_predictions(test_data, y_pred, y_prob):
             "elo_diff",
             "home_elo_with_hfa_diff",
             "elo_home_win_prob",
+            "home_strength_of_schedule_before",
+            "away_strength_of_schedule_before",
+            "strength_of_schedule_diff",
+            "current_opponent_win_pct_diff",
         ]
     ].copy()
 
@@ -110,6 +114,8 @@ def main():
         "elo_diff",
         "home_elo_with_hfa_diff",
         "elo_home_win_prob",
+        "strength_of_schedule_diff",
+        "current_opponent_win_pct_diff",
     ]
 
     target = "home_team_won"
@@ -141,7 +147,7 @@ def main():
     X_test = test_data[features]
     y_test = test_data[target]
 
-    print("Training Logistic Regression model with Elo features...")
+    print("Training Logistic Regression model with Elo and strength of schedule features...")
     model = train_model(X_train, y_train)
 
     print("Making predictions...")
@@ -153,7 +159,7 @@ def main():
     print()
     print("Model Results")
     print("-------------")
-    print("Model: Logistic Regression with Elo features")
+    print("Model: Logistic Regression with Elo and strength of schedule features")
     print("Training seasons: 2018-2024")
     print("Testing season: 2025")
     print(f"Accuracy: {accuracy:.2%}")

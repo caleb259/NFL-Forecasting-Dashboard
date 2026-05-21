@@ -23,16 +23,16 @@ st.header("Current Best Model")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.metric("Best Model", "Logistic Regression + Elo")
+    st.metric("Best Model", "Logistic Regression + Elo + SOS")
 
 with col2:
-    st.metric("Best Accuracy", "63.51%")
+    st.metric("Best Accuracy", "63.86%")
 
 with col3:
     st.metric("Testing Season", "2025")
 
 st.success(
-    "Logistic Regression with Elo features is currently the best-performing model."
+    "Logistic Regression with Elo and strength of schedule features is currently the best-performing model."
 )
 
 st.divider()
@@ -50,7 +50,8 @@ model_results = pd.DataFrame(
             "Logistic Regression",
             "Random Forest",
             "Gradient Boosting",
-            "Logistic Regression + Elo"
+            "Logistic Regression + Elo",
+            "Logistic Regression + Elo + SOS"
         ],
         "Accuracy": [
             59.35,
@@ -61,7 +62,8 @@ model_results = pd.DataFrame(
             62.46,
             60.70,
             56.49,
-            63.51
+            63.51,
+            63.86
         ],
         "Notes": [
             "First baseline test using random train-test split",
@@ -72,7 +74,8 @@ model_results = pd.DataFrame(
             "Best model from model comparison without Elo",
             "Tree-based model using same expanded features",
             "Boosting model using same expanded features",
-            "Current best model with Elo rating features"
+            "Model with Elo rating features",
+            "Current best model with Elo and strength of schedule features"
         ]
     }
 )

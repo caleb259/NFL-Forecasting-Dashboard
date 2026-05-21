@@ -166,6 +166,7 @@ The modeling process followed these steps:
 | EPA features | 61.40% |
 | Model comparison best | 62.46% |
 | Elo features | 63.51% |
+| SOS features | 63.86% |
 
 ## Current Dashboard Pages
 

@@ -296,6 +296,140 @@ def add_difference_features(modeling_data, window=3):
 
     return modeling_data
 
+def add_strength_of_schedule_features(team_games):
+    """
+    Add strength of schedule features to team-game rows.
+
+    Strength of schedule is based on the average pregame win percentage
+    of a team's previous opponents.
+    """
+    team_games = team_games.copy()
+
+    # Create lookup table for each team's win percentage before each game
+    team_strength_lookup = team_games[
+        [
+            "game_id",
+            "team",
+            "win_pct_before",
+        ]
+    ].copy()
+
+    team_strength_lookup = team_strength_lookup.rename(
+        columns={
+            "team": "opponent",
+            "win_pct_before": "opponent_win_pct_before",
+        }
+    )
+
+    # Add current opponent's pregame win percentage
+    team_games = team_games.merge(
+        team_strength_lookup,
+        on=["game_id", "opponent"],
+        how="left",
+    )
+
+    team_games["opponent_win_pct_before"] = (
+        team_games["opponent_win_pct_before"].fillna(0)
+    )
+
+    # Calculate average opponent win percentage before the current game
+    team_games = team_games.sort_values(
+        ["team", "season", "week", "gameday"]
+    ).reset_index(drop=True)
+
+    team_games["opponent_win_pct_sum_before"] = (
+        team_games.groupby(["team", "season"])["opponent_win_pct_before"]
+        .transform(lambda x: x.cumsum().shift(1))
+    )
+
+    team_games["opponents_played_before"] = (
+        team_games.groupby(["team", "season"]).cumcount()
+    )
+
+    team_games["opponent_win_pct_sum_before"] = (
+        team_games["opponent_win_pct_sum_before"].fillna(0)
+    )
+
+    team_games["strength_of_schedule_before"] = 0.0
+
+    mask = team_games["opponents_played_before"] > 0
+
+    team_games.loc[mask, "strength_of_schedule_before"] = (
+        team_games.loc[mask, "opponent_win_pct_sum_before"]
+        / team_games.loc[mask, "opponents_played_before"]
+    )
+
+    return team_games
+
+
+def add_strength_of_schedule_to_modeling_data(modeling_data, team_games):
+    """
+    Merge strength of schedule features onto the modeling dataset.
+    """
+    modeling_data = modeling_data.copy()
+
+    home_sos = team_games[team_games["is_home"] == 1][
+        [
+            "game_id",
+            "team",
+            "strength_of_schedule_before",
+            "opponent_win_pct_before",
+        ]
+    ].copy()
+
+    home_sos = home_sos.rename(
+        columns={
+            "team": "home_team_check",
+            "strength_of_schedule_before": "home_strength_of_schedule_before",
+            "opponent_win_pct_before": "home_current_opponent_win_pct_before",
+        }
+    )
+
+    away_sos = team_games[team_games["is_home"] == 0][
+        [
+            "game_id",
+            "team",
+            "strength_of_schedule_before",
+            "opponent_win_pct_before",
+        ]
+    ].copy()
+
+    away_sos = away_sos.rename(
+        columns={
+            "team": "away_team_check",
+            "strength_of_schedule_before": "away_strength_of_schedule_before",
+            "opponent_win_pct_before": "away_current_opponent_win_pct_before",
+        }
+    )
+
+    modeling_data = modeling_data.merge(home_sos, on="game_id", how="left")
+    modeling_data = modeling_data.merge(away_sos, on="game_id", how="left")
+
+    modeling_data = modeling_data.drop(
+        columns=["home_team_check", "away_team_check"]
+    )
+
+    sos_cols = [
+        "home_strength_of_schedule_before",
+        "away_strength_of_schedule_before",
+        "home_current_opponent_win_pct_before",
+        "away_current_opponent_win_pct_before",
+    ]
+
+    modeling_data[sos_cols] = modeling_data[sos_cols].fillna(0)
+
+    modeling_data["strength_of_schedule_diff"] = (
+        modeling_data["home_strength_of_schedule_before"]
+        - modeling_data["away_strength_of_schedule_before"]
+    )
+
+    modeling_data["current_opponent_win_pct_diff"] = (
+        modeling_data["home_current_opponent_win_pct_before"]
+        - modeling_data["away_current_opponent_win_pct_before"]
+    )
+
+    return modeling_data
+
 
 def create_modeling_dataset(game_results, window=3):
     """
@@ -311,6 +445,7 @@ def create_modeling_dataset(game_results, window=3):
     team_games = add_team_results(team_games)
     team_games = add_season_long_pregame_features(team_games)
     team_games = add_recent_form_features(team_games, window=window)
+    team_games = add_strength_of_schedule_features(team_games)
 
     home_features, away_features = create_home_away_features(
         team_games,
@@ -325,5 +460,10 @@ def create_modeling_dataset(game_results, window=3):
     )
 
     modeling_data = add_difference_features(modeling_data, window=window)
+
+    modeling_data = add_strength_of_schedule_to_modeling_data(
+        modeling_data,
+        team_games,
+    )
 
     return modeling_data

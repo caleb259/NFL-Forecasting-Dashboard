@@ -130,7 +130,8 @@ try:
     )
 
     st.write(
-        "Current features include season-long differences, recent-form differences, and Elo rating differences between the home and away teams."
+        "Current features include season-long differences, recent-form differences, Elo rating differences, "
+        "and strength of schedule differences between the home and away teams."
     )
 
     feature_list = [
@@ -144,7 +145,9 @@ try:
         "Last 3 games win percentage difference",
         "Elo rating difference",
         "Elo rating difference with home-field advantage",
-        "Elo-based home win probability"
+        "Elo-based home win probability",
+        "Strength of schedule difference",
+        "Current opponent win percentage difference"
     ]
 
     st.markdown("### Features Used")
