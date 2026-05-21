@@ -1,5 +1,247 @@
+import pandas as pd
 import streamlit as st
 
-st.title("Game Breakdown")
 
-st.write("This page will show a detailed explanation for one selected NFL matchup.")
+st.set_page_config(
+    page_title="Game Breakdown",
+    page_icon="🏈",
+    layout="wide"
+)
+
+
+@st.cache_data
+def load_predictions():
+    """Load saved model predictions."""
+    filepath = "data/predictions/best_logistic_regression_predictions.csv"
+    return pd.read_csv(filepath)
+
+
+@st.cache_data
+def load_modeling_data():
+    """Load modeling dataset with feature values."""
+    filepath = "data/processed/modeling_dataset_expanded_2018_2025.csv"
+    return pd.read_csv(filepath)
+
+
+st.title("🏈 Game Breakdown")
+st.write(
+    "Select a specific game to view the model prediction, final result, and feature values used by the model."
+)
+
+try:
+    predictions = load_predictions()
+    modeling_data = load_modeling_data()
+
+    # Merge prediction results with model feature values
+    game_data = predictions.merge(
+        modeling_data,
+        on=[
+            "season",
+            "week",
+            "game_id",
+            "gameday",
+            "home_team",
+            "away_team",
+            "home_score",
+            "away_score",
+            "home_team_won"
+        ],
+        how="left",
+        suffixes=("", "_model")
+    )
+
+    st.divider()
+
+    # Week selector
+    weeks = sorted(game_data["week"].unique())
+
+    selected_week = st.selectbox(
+        "Select a week",
+        weeks
+    )
+
+    week_games = game_data[game_data["week"] == selected_week].copy()
+
+    week_games["matchup"] = (
+        week_games["away_team"] + " at " + week_games["home_team"]
+    )
+
+    selected_matchup = st.selectbox(
+        "Select a game",
+        week_games["matchup"].tolist()
+    )
+
+    selected_game = week_games[
+        week_games["matchup"] == selected_matchup
+    ].iloc[0]
+
+    st.divider()
+
+    st.header(selected_matchup)
+
+    prediction_result = (
+        "Correct" if selected_game["correct_prediction"] else "Incorrect"
+    )
+
+    home_win_probability_percent = (
+        selected_game["home_win_probability"] * 100
+    )
+
+    away_win_probability_percent = 100 - home_win_probability_percent
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    col1.metric(
+        "Predicted Winner",
+        selected_game["predicted_winner"]
+    )
+
+    col2.metric(
+        "Actual Winner",
+        selected_game["actual_winner"]
+    )
+
+    col3.metric(
+        "Home Win Probability",
+        f"{home_win_probability_percent:.1f}%"
+    )
+
+    col4.metric(
+        "Prediction Result",
+        prediction_result
+    )
+
+    st.divider()
+
+    st.header("Final Score")
+
+    score_col1, score_col2 = st.columns(2)
+
+    with score_col1:
+        st.metric(
+            selected_game["away_team"],
+            int(selected_game["away_score"])
+        )
+
+    with score_col2:
+        st.metric(
+            selected_game["home_team"],
+            int(selected_game["home_score"])
+        )
+
+    st.divider()
+
+    st.header("Win Probability")
+
+    probability_table = pd.DataFrame(
+        {
+            "Team": [
+                selected_game["away_team"],
+                selected_game["home_team"]
+            ],
+            "Win Probability": [
+                away_win_probability_percent,
+                home_win_probability_percent
+            ]
+        }
+    )
+
+    st.dataframe(
+        probability_table,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    st.bar_chart(
+        probability_table,
+        x="Team",
+        y="Win Probability"
+    )
+
+    st.divider()
+
+    st.header("Model Feature Breakdown")
+
+    st.write(
+        "These values compare the home team to the away team before the game was played. "
+        "Positive values favor the home team, while negative values favor the away team."
+    )
+
+    feature_rows = [
+        {
+            "Feature": "Average points scored difference",
+            "Value": selected_game["avg_points_scored_diff"],
+            "Explanation": "Home team's pregame average points scored minus away team's pregame average points scored."
+        },
+        {
+            "Feature": "Average points allowed difference",
+            "Value": selected_game["avg_points_allowed_diff"],
+            "Explanation": "Home team's pregame average points allowed minus away team's pregame average points allowed."
+        },
+        {
+            "Feature": "Average point differential difference",
+            "Value": selected_game["avg_point_diff_diff"],
+            "Explanation": "Home team's pregame average point differential minus away team's pregame average point differential."
+        },
+        {
+            "Feature": "Win percentage difference",
+            "Value": selected_game["win_pct_diff"],
+            "Explanation": "Home team's pregame win percentage minus away team's pregame win percentage."
+        },
+        {
+            "Feature": "Last 3 games points scored difference",
+            "Value": selected_game["last3_avg_points_scored_diff"],
+            "Explanation": "Home team's recent scoring average minus away team's recent scoring average."
+        },
+        {
+            "Feature": "Last 3 games points allowed difference",
+            "Value": selected_game["last3_avg_points_allowed_diff"],
+            "Explanation": "Home team's recent points allowed average minus away team's recent points allowed average."
+        },
+        {
+            "Feature": "Last 3 games point differential difference",
+            "Value": selected_game["last3_avg_point_diff_diff"],
+            "Explanation": "Home team's recent point differential minus away team's recent point differential."
+        },
+        {
+            "Feature": "Last 3 games win percentage difference",
+            "Value": selected_game["last3_win_pct_diff"],
+            "Explanation": "Home team's recent win percentage minus away team's recent win percentage."
+        }
+    ]
+
+    feature_breakdown = pd.DataFrame(feature_rows)
+
+    feature_breakdown["Value"] = feature_breakdown["Value"].round(3)
+
+    st.dataframe(
+        feature_breakdown,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    st.bar_chart(
+        feature_breakdown,
+        x="Feature",
+        y="Value"
+    )
+
+    st.divider()
+
+    st.header("How to Read This Page")
+
+    st.write(
+        "The model predicts the probability that the home team wins. "
+        "If the home win probability is above 50%, the model picks the home team. "
+        "If it is below 50%, the model picks the away team."
+    )
+
+    st.write(
+        "The feature breakdown helps explain what information the model used. "
+        "For example, a positive point differential difference means the home team had a better average point differential before the game."
+    )
+
+except FileNotFoundError:
+    st.error(
+        "Required data file not found. Run `python src/train_model.py` and make sure the processed modeling dataset exists."
+    )
