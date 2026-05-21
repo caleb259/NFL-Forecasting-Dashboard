@@ -84,6 +84,30 @@ try:
         use_container_width=True,
         hide_index=True
     )
+    st.markdown("### Prediction Cards")
+
+    for _, row in week_predictions.iterrows():
+        result_text = "Correct" if row["correct_prediction"] else "Incorrect"
+
+        with st.container(border=True):
+            col1, col2, col3 = st.columns([2, 2, 1])
+
+            with col1:
+                st.subheader(f"{row['away_team']} at {row['home_team']}")
+                st.write(f"Final Score: **{row['away_team']} {int(row['away_score'])} - {row['home_team']} {int(row['home_score'])}**")
+
+            with col2:
+                st.write(f"Predicted Winner: **{row['predicted_winner']}**")
+                st.write(f"Actual Winner: **{row['actual_winner']}**")
+                st.write(f"Home Win Probability: **{row['home_win_probability_percent']}%**")
+
+            with col3:
+                if row["correct_prediction"]:
+                    st.success(result_text)
+                else:
+                    st.error(result_text)
+
+    
 
     st.caption(
         "Home win probability represents the model's estimated chance that the home team wins."
