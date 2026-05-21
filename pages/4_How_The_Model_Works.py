@@ -1,4 +1,8 @@
 import streamlit as st
+import sys
+sys.path.append("src")
+
+from style import apply_global_styles, page_header, section_header
 
 
 st.set_page_config(
@@ -8,11 +12,10 @@ st.set_page_config(
 )
 
 
-st.title("🧠 How the Model Works")
-
-st.write(
-    "This page explains how the NFL forecasting model works, what data it uses, "
-    "how predictions are created, and what the current limitations are."
+page_header(
+    title="How the Model Works",
+    icon="🧠",
+    subtitle="This page explains how the NFL forecasting model works, what data it uses, how predictions are created, and what the current limitations are."
 )
 
 st.divider()

@@ -5,6 +5,7 @@ import sys
 sys.path.append("src")
 
 from team_info import get_team_logo, get_team_name, get_team_primary_color
+from style import apply_global_styles, page_header, section_header
 
 
 st.set_page_config(
@@ -28,9 +29,10 @@ def load_modeling_data():
     return pd.read_csv(filepath)
 
 
-st.title("🏈 Game Breakdown")
-st.write(
-    "Select a specific game to view the model prediction, final result, and feature values used by the model."
+page_header(
+    title="Game Breakdown",
+    icon="🏈",
+    subtitle="Select a specific game to view the model prediction, final result, and feature values used by the model."
 )
 
 try:

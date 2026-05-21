@@ -5,6 +5,7 @@ import sys
 sys.path.append("src")
 
 from team_info import get_team_logo, get_team_name, get_team_primary_color
+from style import apply_global_styles, page_header, section_header
 
 
 st.set_page_config(
@@ -21,9 +22,10 @@ def load_predictions():
     return pd.read_csv(filepath)
 
 
-st.title("🏟️ Team Dashboard")
-st.write(
-    "Select a team to view its 2025 games, model predictions, and team-level prediction performance."
+page_header(
+    title="Team Dashboard",
+    icon="🏟️",
+    subtitle="Select a team to view its 2025 games, model predictions, and team-level prediction performance."
 )
 
 try:

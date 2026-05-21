@@ -1,5 +1,9 @@
 import pandas as pd
 import streamlit as st
+import sys
+sys.path.append("src")
+
+from style import apply_global_styles, page_header, section_header
 
 
 st.set_page_config(
@@ -16,9 +20,10 @@ def load_predictions():
     return pd.read_csv(filepath)
 
 
-st.title("📊 Model Performance")
-st.write(
-    "This page evaluates how well the current NFL prediction model performed on the 2025 testing season."
+page_header(
+    title="Model Performance",
+    icon="📊",
+    subtitle="This page evaluates how well the current NFL prediction model performed on the 2025 testing season."
 )
 
 try:

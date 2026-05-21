@@ -1,5 +1,9 @@
 import pandas as pd
 import streamlit as st
+import sys
+sys.path.append("src")
+
+from style import apply_global_styles, page_header, section_header
 
 
 st.set_page_config(
@@ -9,11 +13,10 @@ st.set_page_config(
 )
 
 
-st.title("🤖 Model Comparison")
-
-st.write(
-    "This page compares the different modeling approaches tested during the project. "
-    "The goal is to show how the current best model was selected."
+page_header(
+    title="Model Comparison",
+    icon="🤖",
+    subtitle="This page compares the different modeling approaches tested during the project and shows how the current best model was selected."
 )
 
 st.divider()
