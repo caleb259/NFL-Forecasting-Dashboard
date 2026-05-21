@@ -264,6 +264,8 @@ NFL-Forecasting-Dashboard/
 - Updated README with current project information
 - Created reusable feature engineering script
 - Refactored model training pipeline to rebuild modeling features automatically
+- Added reusable team information script
+- Added team logos and team-color accents to the dashboard homepage
 
 ## Current Limitations
 

@@ -1,5 +1,9 @@
 import pandas as pd
 import streamlit as st
+import sys
+sys.path.append("src")
+
+from team_info import get_team_logo, get_team_name, get_team_primary_color
 
 
 st.set_page_config(
@@ -84,22 +88,64 @@ try:
         use_container_width=True,
         hide_index=True
     )
+
     st.markdown("### Prediction Cards")
 
     for _, row in week_predictions.iterrows():
         result_text = "Correct" if row["correct_prediction"] else "Incorrect"
 
+        home_team = row["home_team"]
+        away_team = row["away_team"]
+
+        home_logo = get_team_logo(home_team)
+        away_logo = get_team_logo(away_team)
+
+        home_name = get_team_name(home_team)
+        away_name = get_team_name(away_team)
+
+        card_color = get_team_primary_color(home_team)
+
         with st.container(border=True):
+            st.markdown(
+                f"""
+                <div style="
+                    border-left: 8px solid {card_color};
+                    padding-left: 12px;
+                    margin-bottom: 8px;
+                ">
+                    <h3 style="margin-bottom: 0;">{away_team} at {home_team}</h3>
+                    <p style="margin-top: 4px; color: #666;">
+                        {away_name} at {home_name}
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
             col1, col2, col3 = st.columns([2, 2, 1])
 
             with col1:
-                st.subheader(f"{row['away_team']} at {row['home_team']}")
-                st.write(f"Final Score: **{row['away_team']} {int(row['away_score'])} - {row['home_team']} {int(row['home_score'])}**")
+                logo_col1, logo_col2 = st.columns(2)
+
+                with logo_col1:
+                    if away_logo:
+                        st.image(away_logo, width=80)
+                    st.write(f"**{away_team}**")
+                    st.write(f"{int(row['away_score'])} points")
+
+                with logo_col2:
+                    if home_logo:
+                        st.image(home_logo, width=80)
+                    st.write(f"**{home_team}**")
+                    st.write(f"{int(row['home_score'])} points")
 
             with col2:
                 st.write(f"Predicted Winner: **{row['predicted_winner']}**")
                 st.write(f"Actual Winner: **{row['actual_winner']}**")
-                st.write(f"Home Win Probability: **{row['home_win_probability_percent']}%**")
+                st.write(
+                    f"Home Win Probability: "
+                    f"**{row['home_win_probability_percent']}%**"
+                )
 
             with col3:
                 if row["correct_prediction"]:

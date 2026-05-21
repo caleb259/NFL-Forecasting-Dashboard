@@ -122,6 +122,8 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Created the How the Model Works page.
 - Created the Model Comparison page.
 - Updated the dashboard to use the current best Elo model predictions.
+- Created `src/team_info.py` for NFL team names, colors, and logo URLs.
+- Added team logos and team-color accents to homepage prediction cards.
 
 ### GitHub and Documentation
 
