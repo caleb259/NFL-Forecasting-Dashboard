@@ -226,3 +226,20 @@ Current best model:
 
 Current best accuracy:
 - 63.51%
+
+## Reusable Elo Script
+
+The Elo feature logic was moved into a reusable Python script.
+
+Script created:
+- `src/elo.py`
+
+Functions included:
+- `expected_home_win_prob()`
+- `create_elo_features()`
+- `get_latest_elos()`
+
+Purpose:
+- Make Elo calculations reusable outside of notebooks
+- Improve project organization
+- Prepare the project for a cleaner data and modeling pipeline
