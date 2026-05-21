@@ -126,3 +126,31 @@ EPA feature model accuracy: 61.40%
 
 Result:
 - To be updated after reviewing the model output.
+
+## Model Comparison Test
+
+This test compared multiple model types using the expanded 2018–2025 dataset.
+
+Training seasons:
+- 2018–2024
+
+Testing season:
+- 2025
+
+Models tested:
+- Logistic Regression
+- Random Forest
+- Gradient Boosting
+
+Previous best accuracy: 62.46%
+
+Results:
+- Logistic Regression: 62.46%
+- Random Forest: 60.70%
+- Gradient Boosting: 56.49%
+
+Best model:
+- Logistic Regression
+
+Result:
+- To be updated after reviewing model comparison results.
