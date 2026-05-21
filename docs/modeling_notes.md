@@ -45,3 +45,14 @@ Possible improvements:
 - Add Elo ratings
 - Add rest and schedule features
 - Try stronger models after improving the features
+
+## Season-Based Model Test
+
+The next model test used a more realistic evaluation setup. Instead of randomly splitting games, the model trained on the 2023 and 2024 seasons and tested on the 2025 season.
+
+Season-based model accuracy: 61.40%
+
+This result is encouraging because the model performed slightly better than the original random train-test split accuracy of 59.35%. Since this setup better represents real forecasting, it suggests that the basic pre-game features are providing useful predictive signal.
+
+Next improvement:
+- Add recent form features using each team's last 3 games before the matchup.
