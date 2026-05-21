@@ -279,6 +279,56 @@ The project includes several notebooks that document the modeling process.
 | `08_compare_models.ipynb` | Compare Logistic Regression, Random Forest, and Gradient Boosting |
 | `09_elo_features.ipynb` | Add Elo rating features |
 
+## Deployment Notes
+
+The Streamlit dashboard uses processed data and prediction files stored in the repository.
+
+Important app data files include:
+
+- `data/predictions/best_logistic_regression_predictions.csv`
+- `data/processed/game_results_2018_2025.csv`
+
+The app entry point is:
+
+```text
+Home.py
+```
+
+For local use, run:
+
+```bash
+streamlit run Home.py
+```
+
+For deployment on Streamlit Community Cloud, use `Home.py` as the main file path.
+
+## Deployment Readiness Checklist
+
+Before deploying, make sure the following items are complete:
+
+- `requirements.txt` includes all needed Python packages.
+- `Home.py` is the Streamlit entry file.
+- Processed data files are included in the repository.
+- Prediction files are included in the repository.
+- The app runs locally with `streamlit run Home.py`.
+- The README includes clear setup and run instructions.
+- The dashboard pages load without missing file errors.
+
+## Files Needed by the App
+
+The dashboard depends on saved processed data and prediction files.
+
+Main files used by the app:
+
+```text
+data/predictions/best_logistic_regression_predictions.csv
+data/processed/game_results_2018_2025.csv
+```
+
+Additional processed files may also be used by notebooks or future model updates.
+
+Raw data files are ignored because they can be larger and can be recreated from the data loading scripts.
+
 ## How to Run the Project Locally
 
 ### 1. Clone the repository
