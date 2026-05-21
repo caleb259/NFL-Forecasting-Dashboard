@@ -1,5 +1,10 @@
 import pandas as pd
 import streamlit as st
+import sys
+
+sys.path.append("src")
+
+from team_info import get_team_logo, get_team_name, get_team_primary_color
 
 
 st.set_page_config(
@@ -34,6 +39,10 @@ try:
         "Select a team",
         teams
     )
+
+    selected_team_logo = get_team_logo(selected_team)
+    selected_team_name = get_team_name(selected_team)
+    selected_team_color = get_team_primary_color(selected_team)
 
     team_games = predictions[
         (predictions["home_team"] == selected_team) |
@@ -107,7 +116,34 @@ try:
 
     st.divider()
 
-    st.header(f"{selected_team} Overview")
+    st.markdown(
+        f"""
+        <div style="
+            border-left: 10px solid {selected_team_color};
+            padding-left: 16px;
+            margin-bottom: 20px;
+        ">
+            <h2 style="margin-bottom: 0;">{selected_team} Team Dashboard</h2>
+            <p style="margin-top: 4px; color: #666;">
+                {selected_team_name}
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    header_col1, header_col2 = st.columns([1, 4])
+
+    with header_col1:
+        if selected_team_logo:
+            st.image(selected_team_logo, width=120)
+
+    with header_col2:
+        st.subheader(selected_team_name)
+        st.write(
+            "This page shows the selected team's game results, model predictions, "
+            "and team-level prediction performance for the 2025 testing season."
+        )
 
     col1, col2, col3, col4 = st.columns(4)
 
@@ -165,22 +201,56 @@ try:
     st.header("Team Game Cards")
 
     for _, row in team_games.iterrows():
+        opponent = row["opponent"]
+        opponent_logo = get_team_logo(opponent)
+        opponent_name = get_team_name(opponent)
+        opponent_color = get_team_primary_color(opponent)
+
+        card_color = selected_team_color
+
         with st.container(border=True):
+            if row["location"] == "Home":
+                matchup = f"{opponent} at {selected_team}"
+                matchup_full = f"{opponent_name} at {selected_team_name}"
+            else:
+                matchup = f"{selected_team} at {opponent}"
+                matchup_full = f"{selected_team_name} at {opponent_name}"
+
+            st.markdown(
+                f"""
+                <div style="
+                    border-left: 8px solid {card_color};
+                    padding-left: 12px;
+                    margin-bottom: 8px;
+                ">
+                    <h3 style="margin-bottom: 0;">Week {int(row['week'])}: {matchup}</h3>
+                    <p style="margin-top: 4px; color: #666;">
+                        {matchup_full}
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
             col1, col2, col3 = st.columns([2, 2, 1])
 
             with col1:
-                if row["location"] == "Home":
-                    matchup = f"{row['opponent']} at {selected_team}"
-                else:
-                    matchup = f"{selected_team} at {row['opponent']}"
+                logo_col1, logo_col2 = st.columns(2)
 
-                st.subheader(f"Week {int(row['week'])}: {matchup}")
-                st.write(
-                    f"Final Score: **{selected_team} {int(row['team_score'])} - "
-                    f"{row['opponent']} {int(row['opponent_score'])}**"
-                )
+                with logo_col1:
+                    if selected_team_logo:
+                        st.image(selected_team_logo, width=75)
+                    st.write(f"**{selected_team}**")
+                    st.write(f"{int(row['team_score'])} points")
+
+                with logo_col2:
+                    if opponent_logo:
+                        st.image(opponent_logo, width=75)
+                    st.write(f"**{opponent}**")
+                    st.write(f"{int(row['opponent_score'])} points")
 
             with col2:
+                st.write(f"Location: **{row['location']}**")
                 st.write(f"Predicted Winner: **{row['predicted_winner']}**")
                 st.write(f"Actual Winner: **{row['actual_winner']}**")
                 st.write(
