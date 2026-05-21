@@ -243,3 +243,20 @@ Purpose:
 - Make Elo calculations reusable outside of notebooks
 - Improve project organization
 - Prepare the project for a cleaner data and modeling pipeline
+
+## Training Script Refactor
+
+The model training script was refactored to use the reusable Elo script.
+
+Updated script:
+- `src/train_model.py`
+
+Change made:
+- The script now imports `create_elo_features()` from `src/elo.py`
+- Elo features are rebuilt during model training
+- The script no longer depends only on a notebook-created Elo modeling dataset
+
+Purpose:
+- Make the pipeline more reproducible
+- Keep Elo logic in one reusable file
+- Make future data updates easier

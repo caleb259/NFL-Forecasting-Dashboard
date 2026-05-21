@@ -4,10 +4,34 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
 
+from elo import create_elo_features
+
 
 def load_data(filepath):
-    """Load the modeling dataset."""
+    """Load a CSV file."""
     return pd.read_csv(filepath)
+
+
+def add_elo_features(modeling_data, game_results):
+    """Create Elo features and merge them into the modeling dataset."""
+    elo_features = create_elo_features(game_results)
+
+    elo_cols = [
+        "game_id",
+        "home_elo_before",
+        "away_elo_before",
+        "elo_diff",
+        "home_elo_with_hfa_diff",
+        "elo_home_win_prob",
+    ]
+
+    modeling_data_elo = modeling_data.merge(
+        elo_features[elo_cols],
+        on="game_id",
+        how="left"
+    )
+
+    return modeling_data_elo
 
 
 def split_data(modeling_data):
@@ -77,7 +101,8 @@ def create_predictions(test_data, y_pred, y_prob):
 
 
 def main():
-    data_path = "data/processed/modeling_dataset_elo_2018_2025.csv"
+    modeling_data_path = "data/processed/modeling_dataset_expanded_2018_2025.csv"
+    game_results_path = "data/processed/game_results_2018_2025.csv"
     output_path = "data/predictions/best_logistic_regression_predictions.csv"
 
     features = [
@@ -97,7 +122,21 @@ def main():
     target = "home_team_won"
 
     print("Loading modeling data...")
-    modeling_data = load_data(data_path)
+    modeling_data = load_data(modeling_data_path)
+
+    print("Loading game results...")
+    game_results = load_data(game_results_path)
+
+    print("Creating and merging Elo features...")
+    modeling_data = add_elo_features(modeling_data, game_results)
+
+    print("Checking for missing feature values...")
+    missing_values = modeling_data[features].isna().sum()
+
+    if missing_values.sum() > 0:
+        print("Missing values found:")
+        print(missing_values[missing_values > 0])
+        raise ValueError("Missing values found in model features.")
 
     print("Splitting data...")
     train_data, test_data = split_data(modeling_data)
