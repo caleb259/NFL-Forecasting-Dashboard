@@ -76,3 +76,29 @@ This result is encouraging because the model performed slightly better than the 
 Next improvement:
 - Add recent form features using each team's last 3 games before the matchup.
 
+## Expanded Training Data Test
+
+This test expanded the dataset from 2023–2025 to 2018–2025.
+
+Training seasons:
+- 2018–2024
+
+Testing season:
+- 2025
+
+Features used:
+- Season-long pre-game scoring differences
+- Season-long pre-game points allowed differences
+- Season-long pre-game point differential differences
+- Season-long pre-game win percentage differences
+- Last-3-game scoring differences
+- Last-3-game points allowed differences
+- Last-3-game point differential differences
+- Last-3-game win percentage differences
+
+Previous best accuracy: 61.40%
+
+Expanded training data accuracy: 62.46%
+
+Result:
+- To be updated after reviewing the model output.
