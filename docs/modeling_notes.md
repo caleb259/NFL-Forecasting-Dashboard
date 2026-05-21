@@ -260,3 +260,24 @@ Purpose:
 - Make the pipeline more reproducible
 - Keep Elo logic in one reusable file
 - Make future data updates easier
+
+## Reusable Data Loader Script
+
+A reusable data loading script was added to the project.
+
+Script created:
+- `src/data_loader.py`
+
+Functions included:
+- `load_csv()`
+- `save_csv()`
+- `load_game_results()`
+- `load_modeling_data()`
+- `load_predictions()`
+- `import_schedules()`
+- `create_game_results_from_schedules()`
+
+Purpose:
+- Reduce repeated file loading code
+- Make project scripts easier to maintain
+- Prepare the project for a cleaner data pipeline

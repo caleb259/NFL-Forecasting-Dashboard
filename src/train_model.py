@@ -1,15 +1,9 @@
-import os
-import pandas as pd
-
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
 
+from data_loader import load_game_results, load_modeling_data, save_csv
 from elo import create_elo_features
 
-
-def load_data(filepath):
-    """Load a CSV file."""
-    return pd.read_csv(filepath)
 
 
 def add_elo_features(modeling_data, game_results):
@@ -101,8 +95,6 @@ def create_predictions(test_data, y_pred, y_prob):
 
 
 def main():
-    modeling_data_path = "data/processed/modeling_dataset_expanded_2018_2025.csv"
-    game_results_path = "data/processed/game_results_2018_2025.csv"
     output_path = "data/predictions/best_logistic_regression_predictions.csv"
 
     features = [
@@ -122,10 +114,10 @@ def main():
     target = "home_team_won"
 
     print("Loading modeling data...")
-    modeling_data = load_data(modeling_data_path)
+    modeling_data = load_modeling_data()
 
     print("Loading game results...")
-    game_results = load_data(game_results_path)
+    game_results = load_game_results()
 
     print("Creating and merging Elo features...")
     modeling_data = add_elo_features(modeling_data, game_results)
@@ -169,9 +161,7 @@ def main():
 
     results = create_predictions(test_data, y_pred, y_prob)
 
-    os.makedirs("data/predictions", exist_ok=True)
-
-    results.to_csv(output_path, index=False)
+    save_csv(results, output_path)
 
     print()
     print(f"Saved predictions to {output_path}")
