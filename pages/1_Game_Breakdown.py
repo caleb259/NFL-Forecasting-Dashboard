@@ -207,6 +207,21 @@ try:
             "Feature": "Last 3 games win percentage difference",
             "Value": selected_game["last3_win_pct_diff"],
             "Explanation": "Home team's recent win percentage minus away team's recent win percentage."
+        },
+        {
+            "Feature": "Elo rating difference",
+            "Value": selected_game["elo_diff"],
+            "Explanation": "Home team's pregame Elo rating minus away team's pregame Elo rating."
+        },
+        {
+            "Feature": "Elo difference with home-field advantage",
+            "Value": selected_game["home_elo_with_hfa_diff"],
+            "Explanation": "Home team's Elo rating plus home-field advantage minus away team's Elo rating."
+        },
+        {
+            "Feature": "Elo-based home win probability",
+            "Value": selected_game["elo_home_win_prob"],
+            "Explanation": "The home team's expected win probability based only on Elo ratings."
         }
     ]
 
@@ -228,6 +243,35 @@ try:
 
     st.divider()
 
+    st.header("Elo Rating Summary")
+
+    elo_col1, elo_col2, elo_col3 = st.columns(3)
+
+    with elo_col1:
+        st.metric(
+            f"{selected_game['home_team']} Pregame Elo",
+            f"{selected_game['home_elo_before']:.1f}"
+        )
+
+    with elo_col2:
+        st.metric(
+            f"{selected_game['away_team']} Pregame Elo",
+            f"{selected_game['away_elo_before']:.1f}"
+        )
+
+    with elo_col3:
+        st.metric(
+            "Elo Home Win Probability",
+            f"{selected_game['elo_home_win_prob']:.1%}"
+        )
+
+    st.write(
+        "Elo ratings estimate team strength over time. A higher Elo rating means the team has performed better based on previous results. "
+        "The Elo home win probability is calculated before the game using both teams' ratings and a home-field advantage adjustment."
+    )
+
+    st.divider()
+
     st.header("How to Read This Page")
 
     st.write(
@@ -238,7 +282,8 @@ try:
 
     st.write(
         "The feature breakdown helps explain what information the model used. "
-        "For example, a positive point differential difference means the home team had a better average point differential before the game."
+        "For example, a positive point differential difference means the home team had a better average point differential before the game. "
+        "A positive Elo difference means the home team had a higher team-strength rating before the matchup."
     )
 
 except FileNotFoundError:
