@@ -302,3 +302,26 @@ Purpose:
 - Move feature engineering logic out of notebooks
 - Make the modeling pipeline easier to rerun
 - Prepare the project for future schedule and weekly data updates
+
+## Strength of Schedule Feature Test
+
+This test added strength of schedule features to the model.
+
+New features included:
+- Home team strength of schedule before the game
+- Away team strength of schedule before the game
+- Strength of schedule difference
+- Current opponent win percentage difference
+
+Training seasons:
+- 2018–2024
+
+Testing season:
+- 2025
+
+Previous best accuracy: 63.51%
+
+Strength of schedule model accuracy: 63.86%
+
+Result:
+- To be updated after reviewing the model output.
