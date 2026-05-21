@@ -14,10 +14,12 @@ __pycache__/
 # Environment variables
 .env
 
-# Local data files
+# Raw data files can be large, so keep them ignored
 data/raw/*.csv
-data/processed/*.csv
-data/predictions/*.csv
+
+# Processed data and prediction files are needed for deployment
+# data/processed/*.csv
+# data/predictions/*.csv
 
 # OS files
 .DS_Store

@@ -1,0 +1,4 @@
+model,accuracy,accuracy_percent,difference_from_previous_best,difference_percent_points
+Logistic Regression,0.624561403508772,62.46,-3.859649122806008e-05,-0.0
+Random Forest,0.6070175438596491,60.7,-0.01758245614035092,-1.76
+Gradient Boosting,0.5649122807017544,56.49,-0.05968771929824568,-5.97
