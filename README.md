@@ -86,6 +86,28 @@ This page explains the project in plain English, including:
 - Current limitations
 - Future improvements
 
+## Dashboard Preview
+
+### Home
+
+![Home page](docs/images/home_page.png)
+
+### Game Breakdown
+
+![Game Breakdown page](docs/images/game_breakdown_page.png)
+
+### Team Dashboard
+
+![Team Dashboard page](docs/images/team_dashboard_page.png)
+
+### Model Performance
+
+![Model Performance page](docs/images/model_performance_page.png)
+
+### How the Model Works
+
+![How the Model Works page](docs/images/how_model_works_page.png)
+
 ## Data
 
 The project uses NFL data from the nflverse ecosystem through the `nfl_data_py` Python package.
