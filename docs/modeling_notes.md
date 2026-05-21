@@ -154,3 +154,25 @@ Best model:
 
 Result:
 - To be updated after reviewing model comparison results.
+
+## Model Training Script
+
+After comparing model types, the project moved the best model into a reusable Python script.
+
+Script created:
+- `src/train_model.py`
+
+Purpose:
+- Load the expanded modeling dataset
+- Train Logistic Regression on 2018–2024
+- Test on 2025
+- Print model accuracy
+- Save prediction results
+
+Current best model:
+- Logistic Regression
+
+Current best accuracy:
+- 62.46%
+
+This script is an important step toward making the forecasting process repeatable for the dashboard.
