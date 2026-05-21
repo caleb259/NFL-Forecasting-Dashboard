@@ -113,7 +113,7 @@ try:
             margin-bottom: 20px;
         ">
             <h2 style="margin-bottom: 0;">{away_team} at {home_team}</h2>
-            <p style="margin-top: 4px; color: #666;">
+            <p style="margin-top: 4px; color: #CBD5E1;">
                 {away_name} at {home_name}
             </p>
         </div>

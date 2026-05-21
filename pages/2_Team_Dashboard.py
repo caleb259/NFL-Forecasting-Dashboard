@@ -124,7 +124,7 @@ try:
             margin-bottom: 20px;
         ">
             <h2 style="margin-bottom: 0;">{selected_team} Team Dashboard</h2>
-            <p style="margin-top: 4px; color: #666;">
+            <p style="margin-top: 4px; color: #CBD5E1;">
                 {selected_team_name}
             </p>
         </div>
@@ -224,7 +224,7 @@ try:
                     margin-bottom: 8px;
                 ">
                     <h3 style="margin-bottom: 0;">Week {int(row['week'])}: {matchup}</h3>
-                    <p style="margin-top: 4px; color: #666;">
+                    <p style="margin-top: 4px; color: #CBD5E1;">
                         {matchup_full}
                     </p>
                 </div>

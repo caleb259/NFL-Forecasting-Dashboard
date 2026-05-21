@@ -12,6 +12,53 @@ st.set_page_config(
     layout="wide"
 )
 
+st.markdown(
+    """
+    <style>
+    .main-title {
+        font-size: 3rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        margin-bottom: 0.2rem;
+    }
+
+    .subtitle {
+        font-size: 1.15rem;
+        color: #CBD5E1;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-header {
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .muted-text {
+        color: #CBD5E1;
+    }
+
+    div[data-testid="stMetric"] {
+        background-color: #1E293B;
+        border: 1px solid #334155;
+        padding: 1rem;
+        border-radius: 14px;
+    }
+
+    div[data-testid="stMetric"] label {
+        color: #CBD5E1;
+    }
+
+    div[data-testid="stMetric"] div {
+        color: #F8FAFC;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 
 @st.cache_data
 def load_predictions():
@@ -20,8 +67,15 @@ def load_predictions():
     return pd.read_csv(filepath)
 
 
-st.title("🏈 Fourth & Forecast")
-st.subheader("An Explainable NFL Game Prediction Dashboard")
+st.markdown(
+    """
+    <div class="main-title">🏈 Fourth & Forecast</div>
+    <div class="subtitle">
+        Explainable NFL game predictions powered by team stats, Elo ratings, strength of schedule, and machine learning.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 st.write(
     "This dashboard uses NFL team data and machine learning to predict game outcomes. "
@@ -50,7 +104,7 @@ try:
 
     st.divider()
 
-    st.header("2025 Game Predictions")
+    st.markdown('<div class="section-header">2025 Game Predictions</div>', unsafe_allow_html=True)
 
     # Week selector
     weeks = sorted(predictions["week"].unique())
@@ -114,7 +168,7 @@ try:
                     margin-bottom: 8px;
                 ">
                     <h3 style="margin-bottom: 0;">{away_team} at {home_team}</h3>
-                    <p style="margin-top: 4px; color: #666;">
+                    <p style="margin-top: 4px; color: #CBD5E1;">
                         {away_name} at {home_name}
                     </p>
                 </div>
@@ -161,7 +215,7 @@ try:
 
     st.divider()
 
-    st.header("Model Details")
+    st.markdown('<div class="section-header">Model Details</div>', unsafe_allow_html=True)
 
     st.write(
         "Current best model: **Logistic Regression**"
