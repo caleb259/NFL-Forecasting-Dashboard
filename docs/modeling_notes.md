@@ -21,3 +21,27 @@ Reasons:
 When predicting a game, the model should only use information that would have been available before that game was played.
 
 For example, a Week 6 prediction should only use data from Weeks 1 through 5.
+
+## Baseline Logistic Regression Model
+
+The first baseline model used logistic regression to predict whether the home team wins.
+
+Features used:
+
+- Average points scored difference
+- Average points allowed difference
+- Average point differential difference
+- Win percentage difference
+
+Initial model accuracy: 59.35%
+
+This is a useful starting point because the model performs better than random guessing. However, the model is still basic and should be improved with stronger features and a more realistic testing setup.
+
+Possible improvements:
+
+- Train on earlier seasons and test on a later season
+- Add recent-performance features
+- Add EPA/play features
+- Add Elo ratings
+- Add rest and schedule features
+- Try stronger models after improving the features
