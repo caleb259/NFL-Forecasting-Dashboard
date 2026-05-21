@@ -1,229 +1,321 @@
-# NFL-Forecasting-Dashboard
+# Fourth & Forecast: NFL Game Prediction Dashboard
 
-## Project Overview
+Fourth & Forecast is an NFL forecasting dashboard that predicts game outcomes using team-level statistics, Elo ratings, and machine learning.
 
-Fourth & Forecast is a data science and sports analytics project focused on predicting NFL game outcomes. The goal of this project is to build an interactive web dashboard that forecasts upcoming NFL games and explains the main factors behind each prediction.
+The goal of this project is to create an explainable sports analytics dashboard that shows not only which team is predicted to win, but also what information the model used to make that prediction.
 
-The dashboard will use historical and current NFL team data to predict game winners, estimate win probabilities, and show users how the forecast was calculated. As the NFL season progresses, the data will be updated so the model can continue making predictions based on the most recent team performance.
+## Current Status
+
+This project currently has a working Streamlit dashboard with multiple pages for exploring model predictions, team performance, game breakdowns, and model accuracy.
+
+Current best model:
+
+| Model | Training Data | Testing Data | Accuracy |
+|---|---|---|---:|
+| Logistic Regression with Elo features | 2018–2024 NFL seasons | 2025 NFL season | 63.51% |
 
 ## Project Goals
 
 The main goals of this project are to:
 
-* Build a machine learning model that predicts NFL game outcomes
-* Create an interactive dashboard for viewing weekly predictions
-* Show win probabilities for upcoming games
-* Explain which statistics influence each prediction
-* Track model accuracy throughout the season
-* Document the full project process from planning to deployment
+- Predict NFL game winners using historical team data
+- Create an interactive dashboard for viewing predictions
+- Explain how each forecast is calculated
+- Track model performance over time
+- Build a strong end-to-end data science portfolio project
+- Continue improving the model as better features and new data become available
 
-## Why This Project Matters
+## Dashboard Pages
 
-This project is designed to combine data science, machine learning, dashboard design, and sports analytics into one complete portfolio project. Instead of only showing final predictions, the dashboard will also help users understand why a team is projected to win.
+The Streamlit dashboard currently includes the following pages:
 
-The project is also meant to be updated throughout the season, making it a living project rather than a one-time analysis.
+### Home
 
-## Planned Features
+The homepage shows:
 
-### Weekly Forecasts
-
-Users will be able to select an NFL week and view predictions for each game.
-
-Planned information includes:
-
-* Matchup
-* Predicted winner
-* Win probability
-* Confidence level
-* Projected point margin, if added later
+- Current model accuracy
+- Total games tested
+- Correct and incorrect picks
+- Weekly prediction table
+- Prediction cards for each game
+- Model details and features used
 
 ### Game Breakdown
 
-Each matchup will include a more detailed explanation of the prediction.
+The Game Breakdown page allows users to select a specific matchup and view:
 
-Possible details include:
-
-* Offensive comparison
-* Defensive comparison
-* Recent team performance
-* Turnover difference
-* Home-field advantage
-* Key factors that influenced the forecast
+- Predicted winner
+- Actual winner
+- Home win probability
+- Final score
+- Feature values used by the model
+- Elo rating summary
+- Win probability chart
 
 ### Team Dashboard
 
-Users will be able to select a team and view team-level performance trends.
+The Team Dashboard page allows users to select a team and view:
 
-Possible details include:
-
-* Team record
-* Offensive rating
-* Defensive rating
-* Recent performance
-* Upcoming schedule
-* Forecasted win probabilities
+- Team record
+- Model accuracy for that team’s games
+- Number of times the model picked that team
+- Average team win probability
+- Game-by-game results
+- Team win probability by week
 
 ### Model Performance
 
-The dashboard will include a page that tracks how well the model is performing.
+The Model Performance page shows:
 
-Possible metrics include:
+- Overall model accuracy
+- Accuracy by week
+- Best and worst weeks
+- Accuracy by confidence level
+- Full prediction results
 
-* Overall prediction accuracy
-* Accuracy by week
-* Accuracy by confidence level
-* Biggest correct predictions
-* Biggest misses
+### How the Model Works
 
-## Data Sources
+This page explains the project in plain English, including:
 
-The project will likely use NFL data from the nflverse ecosystem through the `nfl_data_py` Python package.
+- Data used
+- How data leakage is avoided
+- Features used by the model
+- What Elo means
+- How Logistic Regression works
+- How win probability should be interpreted
+- Current limitations
+- Future improvements
 
-Potential data sources include:
+## Data
 
-* Historical NFL schedules and scores
-* Weekly team statistics
-* Play-by-play data
-* Team offensive and defensive statistics
-* EPA/play statistics
-* Current-season game results
+The project uses NFL data from the nflverse ecosystem through the `nfl_data_py` Python package.
 
-Additional data sources may be added later, such as injury data, betting lines, or weather data.
+The current dataset includes games from the 2018 through 2025 NFL seasons.
+
+Data used includes:
+
+- Season
+- Week
+- Game ID
+- Game date
+- Home team
+- Away team
+- Home score
+- Away score
+- Game result
+- Team scoring statistics
+- Recent team performance
+- Elo ratings
 
 ## Modeling Approach
 
-The first version of the model will focus on predicting whether the home team wins a game.
+The current best model is Logistic Regression with Elo features.
 
-The first model will likely use logistic regression because it is simple, explainable, and provides win probabilities.
+The model predicts whether the home team wins.
 
-Possible features include:
-
-* Difference in offensive performance between teams
-* Difference in defensive performance between teams
-* Recent point differential
-* Turnover differential
-* Home-field advantage
-* Team strength ratings
-* Rolling averages from previous games
-
-A major focus of the project will be avoiding data leakage. This means the model should only use information that would have been available before each game was played.
-
-## Technology Stack
-
-Planned tools:
-
-| Area             | Tool                                |
-| ---------------- | ----------------------------------- |
-| Programming      | Python                              |
-| Data Cleaning    | pandas                              |
-| NFL Data         | nfl_data_py                         |
-| Machine Learning | scikit-learn                        |
-| Dashboard        | Streamlit                           |
-| Charts           | Plotly or Altair                    |
-| Version Control  | Git and GitHub                      |
-| Deployment       | Streamlit Community Cloud or Render |
-
-## Planned Repository Structure
+The target variable is:
 
 ```text
-nfl-forecast-dashboard/
+home_team_won
+```
+
+Where:
+
+```text
+1 = home team won
+0 = home team lost
+```
+
+The model is trained on games from 2018 through 2024 and tested on games from 2025. This creates a more realistic forecasting setup because the model uses past seasons to predict a later season.
+
+## Features Used
+
+The current best model uses the following feature groups.
+
+### Season-Long Pregame Features
+
+- Average points scored difference
+- Average points allowed difference
+- Average point differential difference
+- Win percentage difference
+
+### Recent-Form Features
+
+- Last 3 games average points scored difference
+- Last 3 games average points allowed difference
+- Last 3 games average point differential difference
+- Last 3 games win percentage difference
+
+### Elo Features
+
+- Elo rating difference
+- Elo rating difference with home-field advantage
+- Elo-based home win probability
+
+## What Elo Means
+
+Elo is a team-strength rating system.
+
+Each team starts with a base rating. After each game, ratings are updated based on the result.
+
+A team gains Elo points when it wins and loses Elo points when it loses. The size of the rating change depends on how surprising the result was.
+
+For example:
+
+- If a strong team beats a weak team, the Elo change is small.
+- If a weak team upsets a strong team, the Elo change is larger.
+
+Current Elo settings:
+
+| Setting | Value |
+|---|---:|
+| Base Elo | 1500 |
+| K-factor | 20 |
+| Home-field advantage | 55 Elo points |
+
+Adding Elo improved model accuracy from 62.46% to 63.51%.
+
+## Model Accuracy History
+
+| Model Version | Accuracy |
+|---|---:|
+| Baseline random split | 59.35% |
+| Season-based split | 61.40% |
+| Recent-form features | 61.40% |
+| Expanded training data | 62.46% |
+| EPA features | 61.40% |
+| Model comparison best | 62.46% |
+| Elo features | 63.51% |
+
+The current best model is Logistic Regression with Elo features.
+
+## Project Structure
+
+```text
+NFL-Forecasting-Dashboard/
 │
-├── README.md
+├── Home.py
 ├── requirements.txt
-├── app.py
+├── README.md
 │
 ├── data/
 │   ├── raw/
 │   ├── processed/
 │   └── predictions/
 │
+├── docs/
+│   ├── project_plan.md
+│   ├── data_dictionary.md
+│   ├── modeling_notes.md
+│   └── update_log.md
+│
 ├── notebooks/
 │   ├── 01_data_exploration.ipynb
 │   ├── 02_feature_engineering.ipynb
-│   └── 03_model_testing.ipynb
-│
-├── src/
-│   ├── data_loader.py
-│   ├── feature_engineering.py
-│   ├── model.py
-│   ├── predict.py
-│   └── evaluation.py
+│   ├── 03_model_testing.ipynb
+│   ├── 04_model_improvement.ipynb
+│   ├── 05_recent_form_features.ipynb
+│   ├── 06_expand_training_data.ipynb
+│   ├── 07_epa_features.ipynb
+│   ├── 08_compare_models.ipynb
+│   └── 09_elo_features.ipynb
 │
 ├── pages/
 │   ├── 1_Game_Breakdown.py
 │   ├── 2_Team_Dashboard.py
-│   └── 3_Model_Performance.py
+│   ├── 3_Model_Performance.py
+│   └── 4_How_The_Model_Works.py
 │
-└── docs/
-    ├── project_plan.md
-    ├── data_dictionary.md
-    ├── modeling_notes.md
-    └── update_log.md
+└── src/
+    └── train_model.py
 ```
 
-## Project Phases
+## Notebooks
 
-### Phase 1: Planning and Setup
+The project includes several notebooks that document the modeling process.
 
-* Create the GitHub repository
-* Write the project README
-* Create the project folder structure
-* Document the project plan
+| Notebook | Purpose |
+|---|---|
+| `01_data_exploration.ipynb` | Explore NFL schedule and results data |
+| `02_feature_engineering.ipynb` | Create first pregame features |
+| `03_model_testing.ipynb` | Train first baseline model |
+| `04_model_improvement.ipynb` | Test season-based train/test split |
+| `05_recent_form_features.ipynb` | Add last-3-game recent form features |
+| `06_expand_training_data.ipynb` | Expand training data to 2018–2025 |
+| `07_epa_features.ipynb` | Test EPA-based features |
+| `08_compare_models.ipynb` | Compare Logistic Regression, Random Forest, and Gradient Boosting |
+| `09_elo_features.ipynb` | Add Elo rating features |
 
-### Phase 2: Data Collection
+## How to Run the Project Locally
 
-* Load NFL data using `nfl_data_py`
-* Explore available data fields
-* Save raw data files
-* Begin documenting the data sources
+### 1. Clone the repository
 
-### Phase 3: Feature Engineering
+```bash
+git clone https://github.com/caleb259/NFL-Forecasting-Dashboard.git
+cd NFL-Forecasting-Dashboard
+```
 
-* Create one row per game
-* Build pre-game team statistics
-* Create rolling averages
-* Add home/away features
-* Create the model target variable
+### 2. Create a virtual environment
 
-### Phase 4: Modeling
+On Windows:
 
-* Train a baseline model
-* Predict game winners
-* Generate win probabilities
-* Evaluate model accuracy
-* Save predictions
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
 
-### Phase 5: Dashboard Development
+### 3. Install requirements
 
-* Build the Streamlit dashboard
-* Add weekly prediction views
-* Add game breakdown pages
-* Add team dashboard pages
-* Add model performance tracking
+```bash
+pip install -r requirements.txt
+```
 
-### Phase 6: Season Updates
+### 4. Train the model
 
-* Update data during the season
-* Re-run predictions weekly
-* Track model performance
-* Improve the model over time
+```bash
+python src/train_model.py
+```
 
-## Current Status
+This creates the prediction file used by the dashboard:
 
-This project is currently in the planning and setup stage.
+```text
+data/predictions/best_logistic_regression_predictions.csv
+```
+
+### 5. Run the Streamlit app
+
+```bash
+streamlit run Home.py
+```
+
+## Current Limitations
+
+The current model is useful, but it is still an early version.
+
+Current limitations include:
+
+- The model does not include player injuries.
+- The model does not include weather.
+- The model does not include betting market information.
+- The model does not predict final score.
+- The model does not predict point spread.
+- The model uses team-level data instead of player-level data.
+- The dashboard currently evaluates completed 2025 games instead of live future games.
 
 ## Future Improvements
 
-Possible future improvements include:
+Planned future improvements include:
 
-* Adding Elo ratings
-* Adding injury data
-* Adding betting spread comparison
-* Predicting final scores
-* Predicting point spreads
-* Adding automated weekly updates
-* Deploying the dashboard publicly
-* Improving the visual design of the dashboard
+- Predict upcoming games for the next NFL season
+- Add automated weekly data updates
+- Add stronger EPA and success-rate features
+- Add injury data
+- Add weather data
+- Add betting spread comparison
+- Predict point margin
+- Add team logos and team colors
+- Improve dashboard styling
+- Deploy the dashboard publicly
 
 ## Author
 
