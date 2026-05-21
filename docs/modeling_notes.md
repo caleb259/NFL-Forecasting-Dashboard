@@ -176,3 +176,33 @@ Current best accuracy:
 - 62.46%
 
 This script is an important step toward making the forecasting process repeatable for the dashboard.
+
+## Elo Feature Test
+
+This test added Elo rating features to the model.
+
+New features included:
+
+- Home team pre-game Elo rating
+- Away team pre-game Elo rating
+- Elo difference
+- Elo difference with home-field advantage
+- Elo-based home win probability
+
+Elo settings:
+- Base Elo: 1500
+- K-factor: 20
+- Home-field advantage: 55 Elo points
+
+Training seasons:
+- 2018–2024
+
+Testing season:
+- 2025
+
+Previous best accuracy: 62.46%
+
+Elo feature model accuracy: 63.51%
+
+Result:
+- To be updated after reviewing the model output.
