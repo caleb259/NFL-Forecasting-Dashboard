@@ -325,3 +325,35 @@ Strength of schedule model accuracy: 63.86%
 
 Result:
 - To be updated after reviewing the model output.
+
+## Margin Model Testing
+
+This test compared regression models for predicting home point differential.
+
+Target:
+- `home_point_diff`
+
+Models tested:
+- Linear Regression
+- Ridge Regression
+- Lasso Regression
+- Random Forest Regressor
+- Gradient Boosting Regressor
+
+Best margin model:
+- Random Forest Regressor
+
+MAE:
+- 10.28 points
+
+RMSE:
+- 12.94 points
+
+R²:
+- 0.162
+
+Winner direction accuracy:
+- 63.16%
+
+Result:
+The Random Forest Regressor was the best model for predicting margin of victory. On average, its predicted margin was off by 10.28 points. The model also picked the correct winner direction 63.16% of the time based on the sign of the predicted margin. This model should be used for projected margins in the upcoming forecast pipeline.

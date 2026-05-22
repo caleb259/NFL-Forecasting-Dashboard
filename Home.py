@@ -45,13 +45,29 @@ try:
     last_updated_text = metadata["last_updated"]
     forecast_season = metadata["forecast_season"]
     upcoming_games = metadata["upcoming_games_forecasted"]
-    model_name = metadata["model"]
+
+    win_model_name = metadata.get(
+        "win_model",
+        "Logistic Regression with Elo and strength of schedule features"
+    )
+
+    margin_model_name = metadata.get(
+        "margin_model",
+        "Random Forest Regressor"
+    )
+
+    margin_model_mae = metadata.get(
+        "margin_model_mae",
+        "Not available"
+    )
 
 except FileNotFoundError:
     last_updated_text = "Not available"
     forecast_season = "2026"
     upcoming_games = "Not available"
-    model_name = "Logistic Regression with Elo and strength of schedule features"
+    win_model_name = "Logistic Regression with Elo and strength of schedule features"
+    margin_model_name = "Random Forest Regressor"
+    margin_model_mae = "Not available"
 
 st.markdown(
     f"""
@@ -62,7 +78,9 @@ st.markdown(
             win probabilities, projected margins of victory, and projected team records.
         </p>
         <p class="muted-text">
-            <strong>Model:</strong> {model_name}<br>
+            <strong>Win model:</strong> {win_model_name}<br>
+            <strong>Margin model:</strong> {margin_model_name}<br>
+            <strong>Margin model MAE:</strong> {margin_model_mae} points<br>
             <strong>Upcoming games forecasted:</strong> {upcoming_games}<br>
             <strong>Forecast last updated:</strong> {last_updated_text}
         </p>

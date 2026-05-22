@@ -4,7 +4,8 @@ import nfl_data_py as nfl
 import json
 from datetime import datetime
 
-from sklearn.linear_model import LogisticRegression, Ridge
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import accuracy_score
 
 from data_loader import save_csv, create_game_results_from_schedules
@@ -98,7 +99,11 @@ def train_models(modeling_data):
     y_margin = modeling_data["home_point_diff"]
 
     win_model = LogisticRegression(max_iter=1000)
-    margin_model = Ridge(alpha=1.0)
+    margin_model = RandomForestRegressor(
+        n_estimators=300,
+        max_depth=5,
+        random_state=42
+    )
 
     win_model.fit(X, y_win)
     margin_model.fit(X, y_margin)
@@ -571,7 +576,11 @@ def save_forecast_metadata(predictions):
     """
     metadata = {
         "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "model": "Logistic Regression with Elo and strength of schedule features",
+        "model": "Logistic Regression win model + Random Forest margin model",
+        "margin_model": "Random Forest Regressor",
+        "margin_model_mae": 10.28,
+        "margin_model_rmse": 12.94,
+        "margin_model_r2": 0.162,
         "forecast_season": CURRENT_SEASON,
         "upcoming_games_forecasted": int(len(predictions)),
         "prediction_file": PREDICTION_OUTPUT_PATH,

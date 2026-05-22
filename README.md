@@ -121,6 +121,7 @@ The Upcoming Forecasts page shows:
 - Projected division standings
 - Projected conference standings
 - Forecast last updated metadata
+- Predicted margin of victory using a Random Forest Regressor
 
 ## Dashboard Preview
 
@@ -184,7 +185,13 @@ Where:
 0 = home team lost
 ```
 
-The model is trained on games from 2018 through 2024 and tested on games from 2025. This creates a more realistic forecasting setup because the model uses past seasons to predict a later season.
+The dashboard uses two model types:
+
+- Logistic Regression for win probability
+- Random Forest Regressor for projected margin of victory
+
+The margin model had an MAE of 10.28 points when tested on the 2025 season.
+
 
 ## Features Used
 

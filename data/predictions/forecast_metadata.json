@@ -1,6 +1,10 @@
 {
-    "last_updated": "2026-05-21 21:17:29",
-    "model": "Logistic Regression with Elo and strength of schedule features",
+    "last_updated": "2026-05-21 21:42:43",
+    "model": "Logistic Regression win model + Random Forest margin model",
+    "margin_model": "Random Forest Regressor",
+    "margin_model_mae": 10.28,
+    "margin_model_rmse": 12.94,
+    "margin_model_r2": 0.162,
     "forecast_season": 2026,
     "upcoming_games_forecasted": 272,
     "prediction_file": "data/predictions/upcoming_2026_predictions.csv",

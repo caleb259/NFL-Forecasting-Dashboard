@@ -124,6 +124,14 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Documented the manual weekly process for refreshing 2026 forecasts.
 - Added update instructions for regenerating predictions, projected records, and forecast metadata.
 
+### Margin Model Testing
+
+- Created `11_margin_model_testing.ipynb`.
+- Tested multiple regression models for predicting home point differential.
+- Random Forest Regressor performed best for margin prediction.
+- Best margin model MAE: 10.28 points.
+- Updated `src/predict_upcoming.py` to use Random Forest Regressor for projected margins.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.
