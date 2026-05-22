@@ -4,6 +4,12 @@ Fourth & Forecast is an NFL forecasting dashboard that predicts game outcomes us
 
 The goal of this project is to create an explainable sports analytics dashboard that shows not only which team is predicted to win, but also what information the model used to make that prediction.
 
+## Live Dashboard
+
+View the live Streamlit dashboard here:
+
+[Fourth & Forecast Dashboard](https://nfl-forecasting-dashboard-bmigza2zszwnqz4rohkbzn.streamlit.app/)
+
 ## Current Status
 
 This project currently has a working Streamlit dashboard with multiple pages for exploring model predictions, team performance, game breakdowns, and model accuracy.
