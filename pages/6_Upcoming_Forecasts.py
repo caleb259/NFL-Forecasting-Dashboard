@@ -341,20 +341,46 @@ try:
     predictions["gameday"] = pd.to_datetime(predictions["gameday"])
 
     st.markdown(
-    f"""
-    <div class="accent-card">
-        <h4 style="margin-top: 0;">Forecast Metadata</h4>
-        <p class="muted-text">
-            <strong>Win model:</strong> {metadata.get("win_model", metadata["model"])}<br>
-        <strong>Margin model:</strong> {metadata.get("margin_model", "Not available")}<br>
-        <strong>Margin model MAE:</strong> {metadata.get("margin_model_mae", "Not available")} points<br>
-        <strong>Forecast season:</strong> {metadata["forecast_season"]}<br>
-        <strong>Upcoming games forecasted:</strong> {metadata["upcoming_games_forecasted"]}<br>
-        <strong>Last updated:</strong> {metadata["last_updated"]}
-        </p>
-    </div>
-    """,
-    unsafe_allow_html=True
+        f"""
+        <div class="accent-card">
+            <h4 style="margin-top: 0;">Forecast Metadata</h4>
+            <p class="muted-text">
+                <strong>Win model:</strong> {metadata.get("win_model", metadata["model"])}<br>
+                <strong>Margin model:</strong> {metadata.get("margin_model", "Not available")}<br>
+                <strong>Margin model MAE:</strong> {metadata.get("margin_model_mae", "Not available")} points<br>
+                <strong>Forecast season:</strong> {metadata["forecast_season"]}<br>
+                <strong>Upcoming games forecasted:</strong> {metadata["upcoming_games_forecasted"]}<br>
+                <strong>Last updated:</strong> {metadata["last_updated"]}
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        """
+        <div class="accent-card">
+            <h4 style="margin-top: 0;">How These Forecasts Are Created</h4>
+            <p class="muted-text">
+                Win probabilities are generated with a Logistic Regression model using team scoring,
+                recent-form, Elo rating, and strength of schedule features.
+            </p>
+            <p class="muted-text">
+                Projected margins are generated with a Random Forest Regressor that estimates the
+                expected home team point differential.
+            </p>
+            <p class="muted-text">
+                Projected records use the model's predicted winner for each remaining game. Expected
+                records use win probabilities, which is why expected wins and losses can include decimals.
+            </p>
+            <p class="muted-text">
+                The playoff bracket is built from projected conference standings. Division winners
+                receive seeds 1–4, wild card teams receive seeds 5–7, and each playoff matchup is
+                projected using expected team strength.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
     st.divider()

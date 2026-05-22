@@ -158,6 +158,11 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Added logo-based first-teams-out cards.
 - Kept detailed standings tables available in expandable sections.
 
+### Forecast Methodology Card
+
+- Added a methodology card to the Upcoming Forecasts page.
+- Explained win probabilities, projected margins, projected records, expected records, and playoff bracket logic.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.
