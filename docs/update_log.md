@@ -116,7 +116,13 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 
 - Added `forecast_metadata.json` to track when upcoming forecasts were last generated.
 - Updated the Home page to display forecast metadata.
-- Updated the Upcoming Forecasts page to display forecast metadata.
+- Updated the Upcoming Forecasts page to display forecast metadata.\
+
+### Forecast Update Process
+
+- Created `docs/update_process.md`.
+- Documented the manual weekly process for refreshing 2026 forecasts.
+- Added update instructions for regenerating predictions, projected records, and forecast metadata.
 
 ### Reusable Scripts
 

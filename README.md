@@ -329,6 +329,22 @@ streamlit run Home.py
 
 For deployment on Streamlit Community Cloud, use `Home.py` as the main file path.
 
+## Updating Forecasts
+
+During the NFL season, forecasts can be refreshed by running:
+
+```bash
+python src/predict_upcoming.py
+```
+
+This updates upcoming game predictions, projected records, and forecast metadata.
+
+For the full weekly update process, see:
+
+```text
+docs/update_process.md
+```
+
 ## Deployment Readiness Checklist
 
 Before deploying, make sure the following items are complete:
