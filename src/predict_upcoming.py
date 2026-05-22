@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 import nfl_data_py as nfl
+import json
+from datetime import datetime
 
 from sklearn.linear_model import LogisticRegression, Ridge
 from sklearn.metrics import accuracy_score
@@ -16,6 +18,7 @@ PREVIOUS_SEASON = 2025
 
 PREDICTION_OUTPUT_PATH = "data/predictions/upcoming_2026_predictions.csv"
 RECORD_OUTPUT_PATH = "data/predictions/projected_2026_records.csv"
+METADATA_OUTPUT_PATH = "data/predictions/forecast_metadata.json"
 
 
 MODEL_FEATURES = [
@@ -562,6 +565,26 @@ def create_projected_records(predictions, schedules):
 
     return records_df
 
+def save_forecast_metadata(predictions):
+    """
+    Save metadata about when the forecast was generated.
+    """
+    metadata = {
+        "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "model": "Logistic Regression with Elo and strength of schedule features",
+        "forecast_season": CURRENT_SEASON,
+        "upcoming_games_forecasted": int(len(predictions)),
+        "prediction_file": PREDICTION_OUTPUT_PATH,
+        "projected_records_file": RECORD_OUTPUT_PATH,
+    }
+
+    os.makedirs("data/predictions", exist_ok=True)
+
+    with open(METADATA_OUTPUT_PATH, "w") as file:
+        json.dump(metadata, file, indent=4)
+
+    return metadata
+
 
 def main():
     schedules = load_schedules()
@@ -625,10 +648,13 @@ def main():
 
     save_csv(predictions, PREDICTION_OUTPUT_PATH)
     save_csv(projected_records, RECORD_OUTPUT_PATH)
+    metadata = save_forecast_metadata(predictions)
 
     print()
     print(f"Saved upcoming predictions to {PREDICTION_OUTPUT_PATH}")
     print(f"Saved projected records to {RECORD_OUTPUT_PATH}")
+    print(f"Saved forecast metadata to {METADATA_OUTPUT_PATH}")
+    print(f"Forecast last updated: {metadata['last_updated']}")
     print()
     print(predictions.head())
     print()

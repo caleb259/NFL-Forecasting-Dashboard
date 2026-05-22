@@ -1,0 +1,8 @@
+{
+    "last_updated": "2026-05-21 21:17:29",
+    "model": "Logistic Regression with Elo and strength of schedule features",
+    "forecast_season": 2026,
+    "upcoming_games_forecasted": 272,
+    "prediction_file": "data/predictions/upcoming_2026_predictions.csv",
+    "projected_records_file": "data/predictions/projected_2026_records.csv"
+}

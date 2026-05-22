@@ -274,6 +274,8 @@ NFL-Forecasting-Dashboard/
 - Added Upcoming Forecasts dashboard page
 - Added projected division standings
 - Added projected conference standings
+- Added forecast metadata file
+- Added forecast last updated information to the dashboard
 
 ## Current Limitations
 

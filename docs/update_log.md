@@ -112,6 +112,12 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Added projected division standings to the Upcoming Forecasts page.
 - Added projected conference standings to the Upcoming Forecasts page.
 
+### Forecast Metadata
+
+- Added `forecast_metadata.json` to track when upcoming forecasts were last generated.
+- Updated the Home page to display forecast metadata.
+- Updated the Upcoming Forecasts page to display forecast metadata.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.

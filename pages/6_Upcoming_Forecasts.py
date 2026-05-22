@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import json
 import sys
 
 sys.path.append("src")
@@ -36,6 +37,14 @@ def load_projected_records():
     filepath = "data/predictions/projected_2026_records.csv"
     return pd.read_csv(filepath)
 
+@st.cache_data
+def load_forecast_metadata():
+    """Load forecast metadata."""
+    filepath = "data/predictions/forecast_metadata.json"
+
+    with open(filepath, "r") as file:
+        return json.load(file)
+
 
 page_header(
     title="Upcoming Forecasts",
@@ -49,8 +58,24 @@ page_header(
 try:
     predictions = load_upcoming_predictions()
     projected_records = load_projected_records()
+    metadata = load_forecast_metadata()
 
     predictions["gameday"] = pd.to_datetime(predictions["gameday"])
+
+    st.markdown(
+    f"""
+    <div class="accent-card">
+        <h4 style="margin-top: 0;">Forecast Metadata</h4>
+        <p class="muted-text">
+            <strong>Model:</strong> {metadata["model"]}<br>
+            <strong>Forecast season:</strong> {metadata["forecast_season"]}<br>
+            <strong>Upcoming games forecasted:</strong> {metadata["upcoming_games_forecasted"]}<br>
+            <strong>Last updated:</strong> {metadata["last_updated"]}
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
 
     st.divider()
 

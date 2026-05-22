@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import json
 import sys
 sys.path.append("src")
 
@@ -23,6 +24,14 @@ def load_predictions():
     filepath = "data/predictions/best_logistic_regression_predictions.csv"
     return pd.read_csv(filepath)
 
+@st.cache_data
+def load_forecast_metadata():
+    """Load forecast metadata."""
+    filepath = "data/predictions/forecast_metadata.json"
+
+    with open(filepath, "r") as file:
+        return json.load(file)
+
 
 main_header(
     title="Fourth & Forecast",
@@ -30,16 +39,35 @@ main_header(
     subtitle="Explainable NFL game predictions powered by team stats, Elo ratings, strength of schedule, and machine learning."
 )
 
+try:
+    metadata = load_forecast_metadata()
+
+    last_updated_text = metadata["last_updated"]
+    forecast_season = metadata["forecast_season"]
+    upcoming_games = metadata["upcoming_games_forecasted"]
+    model_name = metadata["model"]
+
+except FileNotFoundError:
+    last_updated_text = "Not available"
+    forecast_season = "2026"
+    upcoming_games = "Not available"
+    model_name = "Logistic Regression with Elo and strength of schedule features"
+
 st.markdown(
-    """
+    f"""
     <div class="accent-card">
-        <h3 style="margin-top: 0;">🔮 New: 2026 Upcoming Forecasts</h3>
+        <h3 style="margin-top: 0;">🔮 {forecast_season} Upcoming Forecasts</h3>
         <p class="muted-text">
-            The dashboard now includes upcoming 2026 NFL season forecasts with predicted winners,
+            The dashboard includes upcoming NFL season forecasts with predicted winners,
             win probabilities, projected margins of victory, and projected team records.
         </p>
         <p class="muted-text">
-            Use the <strong>Upcoming Forecasts</strong> page in the sidebar to explore the full 2026 schedule predictions.
+            <strong>Model:</strong> {model_name}<br>
+            <strong>Upcoming games forecasted:</strong> {upcoming_games}<br>
+            <strong>Forecast last updated:</strong> {last_updated_text}
+        </p>
+        <p class="muted-text">
+            Use the <strong>Upcoming Forecasts</strong> page in the sidebar to explore the full schedule predictions.
         </p>
     </div>
     """,

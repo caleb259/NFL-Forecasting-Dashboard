@@ -120,6 +120,7 @@ The Upcoming Forecasts page shows:
 - Expected team records based on win probabilities
 - Projected division standings
 - Projected conference standings
+- Forecast last updated metadata
 
 ## Dashboard Preview
 
