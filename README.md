@@ -274,7 +274,8 @@ NFL-Forecasting-Dashboard/
 │   ├── 2_Team_Dashboard.py
 │   ├── 3_Model_Performance.py
 │   ├── 4_Model_Comparison.py
-│   └── 5_How_The_Model_Works.py
+│   ├── 5_How_The_Model_Works.py
+│   └── 6_Upcoming_Forecasts.py
 │
 └── src/
     └── train_model.py
