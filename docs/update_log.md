@@ -106,6 +106,12 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Created expected team records based on win probabilities.
 - Added the Upcoming Forecasts dashboard page.
 
+### Projected Standings
+
+- Added conference and division metadata to `src/team_info.py`.
+- Added projected division standings to the Upcoming Forecasts page.
+- Added projected conference standings to the Upcoming Forecasts page.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.

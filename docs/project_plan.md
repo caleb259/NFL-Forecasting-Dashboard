@@ -272,6 +272,8 @@ NFL-Forecasting-Dashboard/
 - Added predicted margin of victory
 - Added projected team records
 - Added Upcoming Forecasts dashboard page
+- Added projected division standings
+- Added projected conference standings
 
 ## Current Limitations
 

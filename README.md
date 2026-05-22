@@ -118,6 +118,8 @@ The Upcoming Forecasts page shows:
 - Projected margin of victory
 - Projected team records
 - Expected team records based on win probabilities
+- Projected division standings
+- Projected conference standings
 
 ## Dashboard Preview
 

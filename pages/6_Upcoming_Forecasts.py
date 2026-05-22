@@ -5,7 +5,13 @@ import sys
 sys.path.append("src")
 
 from style import apply_global_styles, page_header, section_header
-from team_info import get_team_logo, get_team_name, get_team_primary_color
+from team_info import (
+    get_team_logo,
+    get_team_name,
+    get_team_primary_color,
+    get_team_conference,
+    get_team_division,
+)
 
 
 st.set_page_config(
@@ -183,10 +189,20 @@ try:
         get_team_name
     )
 
+    projected_records_display["conference"] = projected_records_display["team"].apply(
+        get_team_conference
+    )
+
+    projected_records_display["division"] = projected_records_display["team"].apply(
+        get_team_division
+    )
+
     projected_records_display = projected_records_display[
         [
             "team",
             "team_name",
+            "conference",
+            "division",
             "actual_wins",
             "actual_losses",
             "projected_wins",
@@ -204,10 +220,94 @@ try:
 
     st.divider()
 
+    section_header("Projected Division Standings")
+
+    st.write(
+        "Projected division standings are based on the model's predicted winners for the 2026 schedule. "
+        "Expected wins use win probabilities and include decimals."
+    )
+
+    division_order = [
+        "AFC East",
+        "AFC North",
+        "AFC South",
+        "AFC West",
+        "NFC East",
+        "NFC North",
+        "NFC South",
+        "NFC West",
+    ]
+
+    for division in division_order:
+        division_table = projected_records_display[
+            projected_records_display["division"] == division
+        ].copy()
+
+        division_table = division_table.sort_values(
+            ["projected_wins", "expected_wins"],
+            ascending=False
+        ).reset_index(drop=True)
+
+        st.markdown(f"### {division}")
+
+        st.dataframe(
+            division_table[
+                [
+                    "team",
+                    "team_name",
+                    "projected_wins",
+                    "projected_losses",
+                    "expected_wins",
+                    "expected_losses",
+                ]
+            ],
+            use_container_width=True,
+            hide_index=True
+        )
+
+        st.divider()
+
+
+    section_header("Projected Conference Standings")
+
+    selected_conference = st.selectbox(
+        "Select a conference",
+        ["AFC", "NFC"]
+    )
+
+    conference_table = projected_records_display[
+        projected_records_display["conference"] == selected_conference
+    ].copy()
+
+    conference_table = conference_table.sort_values(
+        ["projected_wins", "expected_wins"],
+        ascending=False
+    ).reset_index(drop=True)
+
+    st.dataframe(
+        conference_table[
+            [
+                "team",
+                "team_name",
+                "division",
+                "projected_wins",
+                "projected_losses",
+                "expected_wins",
+                "expected_losses",
+            ]
+        ],
+        use_container_width=True,
+        hide_index=True
+    )
+
+    st.divider()
+
     section_header("Top Projected Teams")
 
-    top_records = projected_records.head(10).copy()
-    top_records["team_name"] = top_records["team"].apply(get_team_name)
+    top_records = projected_records_display.sort_values(
+        ["projected_wins", "expected_wins"],
+        ascending=False
+    ).head(10)
 
     st.bar_chart(
         top_records,
