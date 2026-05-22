@@ -172,6 +172,10 @@ git add data/predictions/upcoming_2026_predictions.csv
 git add data/predictions/projected_2026_records.csv
 git add data/predictions/forecast_metadata.json
 git add data/processed/schedules_2026.csv
+git add data/predictions/projected_playoff_seeds.csv
+git add data/predictions/projected_first_teams_out.csv
+git add data/predictions/projected_playoff_games.csv
+git add data/predictions/projected_super_bowl.json
 ```
 
 Or, if other intended files changed too:

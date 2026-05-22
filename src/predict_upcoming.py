@@ -11,6 +11,8 @@ from sklearn.metrics import accuracy_score
 from data_loader import save_csv, create_game_results_from_schedules
 from feature_engineering import create_modeling_dataset
 from elo import create_elo_features, get_latest_elos, expected_home_win_prob
+from playoff_predictor import simulate_full_playoffs
+from team_info import get_team_conference, get_team_division
 
 
 TRAIN_START_SEASON = 2018
@@ -20,6 +22,10 @@ PREVIOUS_SEASON = 2025
 PREDICTION_OUTPUT_PATH = "data/predictions/upcoming_2026_predictions.csv"
 RECORD_OUTPUT_PATH = "data/predictions/projected_2026_records.csv"
 METADATA_OUTPUT_PATH = "data/predictions/forecast_metadata.json"
+PLAYOFF_SEEDS_OUTPUT_PATH = "data/predictions/projected_playoff_seeds.csv"
+FIRST_OUT_OUTPUT_PATH = "data/predictions/projected_first_teams_out.csv"
+PLAYOFF_GAMES_OUTPUT_PATH = "data/predictions/projected_playoff_games.csv"
+SUPER_BOWL_OUTPUT_PATH = "data/predictions/projected_super_bowl.json"
 
 
 MODEL_FEATURES = [
@@ -655,14 +661,41 @@ def main():
         schedules_2026
     )
 
+    projected_records["conference"] = projected_records["team"].apply(
+        get_team_conference
+    )
+
+    projected_records["division"] = projected_records["team"].apply(
+        get_team_division
+    )
+
+    print("Creating projected playoff picture...")
+    playoff_seeds, first_teams_out, playoff_games, super_bowl_summary = (
+        simulate_full_playoffs(projected_records)
+    )
+
     save_csv(predictions, PREDICTION_OUTPUT_PATH)
     save_csv(projected_records, RECORD_OUTPUT_PATH)
+    save_csv(playoff_seeds, PLAYOFF_SEEDS_OUTPUT_PATH)
+    save_csv(first_teams_out, FIRST_OUT_OUTPUT_PATH)
+    save_csv(playoff_games, PLAYOFF_GAMES_OUTPUT_PATH)
+
+    os.makedirs("data/predictions", exist_ok=True)
+
+    with open(SUPER_BOWL_OUTPUT_PATH, "w") as file:
+        json.dump(super_bowl_summary, file, indent=4)
+
     metadata = save_forecast_metadata(predictions)
 
     print()
     print(f"Saved upcoming predictions to {PREDICTION_OUTPUT_PATH}")
     print(f"Saved projected records to {RECORD_OUTPUT_PATH}")
+    print(f"Saved playoff seeds to {PLAYOFF_SEEDS_OUTPUT_PATH}")
+    print(f"Saved first teams out to {FIRST_OUT_OUTPUT_PATH}")
+    print(f"Saved playoff games to {PLAYOFF_GAMES_OUTPUT_PATH}")
+    print(f"Saved Super Bowl projection to {SUPER_BOWL_OUTPUT_PATH}")
     print(f"Saved forecast metadata to {METADATA_OUTPUT_PATH}")
+    print(f"Projected Super Bowl Champion: {super_bowl_summary['super_bowl_champion']}")
     print(f"Forecast last updated: {metadata['last_updated']}")
     print()
     print(predictions.head())

@@ -137,6 +137,14 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Added reusable `clean_column_names()` helper in `src/style.py`.
 - Updated dashboard tables to display cleaner column names instead of raw dataset column names.
 
+### Playoff Predictor
+
+- Created `src/playoff_predictor.py`.
+- Added projected AFC and NFC playoff seeds.
+- Added first teams out for each conference.
+- Added deterministic playoff bracket projection.
+- Added projected Super Bowl matchup and champion.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.

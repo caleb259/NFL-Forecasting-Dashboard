@@ -44,6 +44,35 @@ def load_forecast_metadata():
 
     with open(filepath, "r") as file:
         return json.load(file)
+    
+@st.cache_data
+def load_playoff_seeds():
+    """Load projected playoff seeds."""
+    filepath = "data/predictions/projected_playoff_seeds.csv"
+    return pd.read_csv(filepath)
+
+
+@st.cache_data
+def load_first_teams_out():
+    """Load projected first teams out."""
+    filepath = "data/predictions/projected_first_teams_out.csv"
+    return pd.read_csv(filepath)
+
+
+@st.cache_data
+def load_playoff_games():
+    """Load projected playoff games."""
+    filepath = "data/predictions/projected_playoff_games.csv"
+    return pd.read_csv(filepath)
+
+
+@st.cache_data
+def load_super_bowl_projection():
+    """Load projected Super Bowl summary."""
+    filepath = "data/predictions/projected_super_bowl.json"
+
+    with open(filepath, "r") as file:
+        return json.load(file)
 
 
 page_header(
@@ -59,6 +88,10 @@ try:
     predictions = load_upcoming_predictions()
     projected_records = load_projected_records()
     metadata = load_forecast_metadata()
+    playoff_seeds = load_playoff_seeds()
+    first_teams_out = load_first_teams_out()
+    playoff_games = load_playoff_games()
+    super_bowl_projection = load_super_bowl_projection()
 
     predictions["gameday"] = pd.to_datetime(predictions["gameday"])
 
@@ -326,6 +359,150 @@ try:
         use_container_width=True,
         hide_index=True
     )
+
+    st.divider()
+
+    section_header("Projected Playoff Picture")
+
+    st.write(
+        "The projected playoff picture is based on the model's projected regular-season records. "
+        "Division winners receive seeds 1–4, and the next three teams in each conference receive wild card spots."
+    )
+
+    for conference in ["AFC", "NFC"]:
+        st.markdown(f"### {conference} Projected Seeds")
+
+        conference_seeds = playoff_seeds[
+            playoff_seeds["conference"] == conference
+        ].copy()
+
+        conference_seeds["team_name"] = conference_seeds["team"].apply(
+            get_team_name
+        )
+
+        st.dataframe(
+            clean_column_names(
+                conference_seeds[
+                    [
+                        "seed",
+                        "team",
+                        "team_name",
+                        "division",
+                        "seed_type",
+                        "projected_wins",
+                        "projected_losses",
+                        "expected_wins",
+                        "expected_losses",
+                    ]
+                ]
+            ),
+            use_container_width=True,
+            hide_index=True
+        )
+
+        conference_out = first_teams_out[
+            first_teams_out["conference"] == conference
+        ].copy()
+
+        conference_out["team_name"] = conference_out["team"].apply(
+            get_team_name
+        )
+
+        st.markdown(f"#### {conference} First Teams Out")
+
+        st.dataframe(
+            clean_column_names(
+                conference_out[
+                    [
+                        "rank_out",
+                        "team",
+                        "team_name",
+                        "division",
+                        "projected_wins",
+                        "projected_losses",
+                        "expected_wins",
+                        "expected_losses",
+                    ]
+                ]
+            ),
+            use_container_width=True,
+            hide_index=True
+        )
+
+        st.divider()
+
+        section_header("Projected Playoff Bracket")
+
+        st.write(
+            "This deterministic playoff projection picks the higher-rated team in each matchup based on projected expected wins."
+        )
+
+        for playoff_round in [
+            "Wild Card",
+            "Divisional",
+            "Conference Championship",
+            "Super Bowl",
+        ]:
+            round_games = playoff_games[
+                playoff_games["round"] == playoff_round
+            ].copy()
+
+            if len(round_games) == 0:
+                continue
+
+            st.markdown(f"### {playoff_round}")
+
+            round_games["matchup"] = round_games.apply(
+                lambda row: f"{row['away_team']} at {row['home_team']}"
+                if row["round"] != "Super Bowl"
+                else f"{row['home_team']} vs {row['away_team']}",
+                axis=1,
+            )
+
+            st.dataframe(
+                clean_column_names(
+                    round_games[
+                        [
+                            "conference",
+                            "matchup",
+                            "home_team",
+                            "away_team",
+                            "winner",
+                            "loser",
+                        ]
+                    ]
+                ),
+                use_container_width=True,
+                hide_index=True
+            )
+
+        st.divider()
+
+        section_header("Projected Super Bowl")
+
+        sb_col1, sb_col2, sb_col3 = st.columns(3)
+
+        with sb_col1:
+            st.metric(
+                "AFC Champion",
+                super_bowl_projection["afc_champion"]
+            )
+
+        with sb_col2:
+            st.metric(
+                "NFC Champion",
+                super_bowl_projection["nfc_champion"]
+            )
+
+        with sb_col3:
+            st.metric(
+                "Projected Champion",
+                super_bowl_projection["super_bowl_champion"]
+            )
+
+        st.success(
+            f"Projected Super Bowl Champion: {super_bowl_projection['super_bowl_champion']}"
+        )
 
     st.divider()
 

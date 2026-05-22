@@ -221,6 +221,15 @@ def clean_column_names(df):
         "elo_diff": "Elo Difference",
         "home_elo_with_hfa_diff": "Elo Difference with Home Field",
         "elo_home_win_prob": "Elo Home Win Probability",
+        "seed": "Seed",
+        "seed_type": "Seed Type",
+        "rank_out": "Rank",
+        "winner": "Winner",
+        "loser": "Loser",
+        "matchup": "Matchup",
+        "round": "Round",
+        "home_seed": "Home Seed",
+        "away_seed": "Away Seed",
     }
 
     display_df = df.copy()

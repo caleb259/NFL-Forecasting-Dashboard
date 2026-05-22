@@ -122,6 +122,9 @@ The Upcoming Forecasts page shows:
 - Projected conference standings
 - Forecast last updated metadata
 - Predicted margin of victory using a Random Forest Regressor
+- Projected playoff seeds
+- Projected playoff bracket
+- Projected Super Bowl matchup and champion
 
 ## Dashboard Preview
 
