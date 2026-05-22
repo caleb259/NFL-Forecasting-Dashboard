@@ -197,6 +197,115 @@ st.markdown(
 
 st.divider()
 
+st.header("How Upcoming Forecasts Work")
+
+st.write(
+    "The dashboard now includes forecasts for the upcoming 2026 NFL season. "
+    "These forecasts are created using the released 2026 schedule and the model trained on completed historical games."
+)
+
+st.write(
+    "For upcoming games, the model does not know the final score yet. Instead, it uses pregame information such as "
+    "team strength, recent performance, Elo ratings, and strength of schedule to estimate the most likely winner."
+)
+
+st.markdown(
+    """
+    The upcoming forecast process works like this:
+
+    1. Load completed historical NFL games.
+    2. Load the upcoming 2026 schedule.
+    3. Train the current best model using completed games.
+    4. Create pregame features for each upcoming matchup.
+    5. Predict the winner and win probability for each game.
+    6. Save the predictions for the dashboard.
+    """
+)
+
+st.info(
+    "Before the 2026 season begins, the forecasts are preseason-style predictions. "
+    "They rely mostly on carried-forward team strength from previous seasons."
+)
+
+st.divider()
+
+st.header("How Predicted Margin Works")
+
+st.write(
+    "In addition to predicting the winner, the project now estimates a predicted margin of victory for each upcoming game."
+)
+
+st.write(
+    "The win/loss model predicts which team is more likely to win. A separate regression model estimates the expected home team point differential."
+)
+
+st.markdown(
+    """
+    The margin model predicts:
+
+    ```text
+    home_point_diff = home_score - away_score
+    ```
+
+    Examples:
+
+    - A predicted margin of `+4.5` means the home team is projected to win by about 4.5 points.
+    - A predicted margin of `-3.0` means the away team is projected to win by about 3 points.
+    """
+)
+
+st.write(
+    "This margin is not meant to be a guaranteed score prediction. It is an estimate based on the same team-level features used by the forecasting model."
+)
+
+st.divider()
+
+st.header("How Projected Records Work")
+
+st.write(
+    "The Upcoming Forecasts page also creates projected team records for the 2026 season."
+)
+
+st.write(
+    "There are two ways to summarize projected records: hard projected records and expected records."
+)
+
+st.subheader("Projected Record")
+
+st.write(
+    "Projected record uses the model's predicted winner for each game. "
+    "If the model predicts a team to win, that team receives one projected win."
+)
+
+st.subheader("Expected Record")
+
+st.write(
+    "Expected record uses win probabilities instead of hard picks. "
+    "For example, if a team has a 60% chance to win a game, it receives 0.60 expected wins and 0.40 expected losses."
+)
+
+st.markdown(
+    """
+    Example:
+
+    ```text
+    Team A win probability = 60%
+    Team B win probability = 40%
+
+    Team A gets 0.60 expected wins
+    Team B gets 0.40 expected wins
+    ```
+    """
+)
+
+st.write(
+    "Expected records are useful because they account for uncertainty. "
+    "A team with several close 51% predictions may have a similar projected record to a team with several strong 70% predictions, "
+    "but their expected records will show the difference in confidence."
+)
+
+st.divider()
+
 st.header("Model Accuracy")
 
 st.write(
@@ -265,7 +374,9 @@ st.markdown(
     - The model does not currently predict final score.
     - The model does not currently predict point spread.
     - The model uses team-level data instead of player-level data.
-    - The current dashboard is based on completed 2025 test games, not live future games yet.
+    - The upcoming forecast page currently uses preseason-style 2026 predictions until games are completed.
+    - Predicted margin is estimated with a basic regression model and should not be treated as a betting line.
+    - During the season, forecasts need to be refreshed by rerunning the update script after new games are completed.
     """
 )
 
@@ -290,6 +401,9 @@ st.markdown(
     - Predicting point margin
     - Adding team logos and better visual design
     - Deploying the dashboard publicly
+    - Automate weekly forecast updates during the season
+    - Improve the predicted margin model
+    - Add projected standings by division and conference
     """
 )
 

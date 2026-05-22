@@ -99,7 +99,11 @@ This page explains the project in plain English, including:
 - How data leakage is avoided
 - Features used by the model
 - What Elo means
+- What strength of schedule means
 - How Logistic Regression works
+- How upcoming forecasts are created
+- How predicted margin works
+- How projected records are calculated
 - How win probability should be interpreted
 - Current limitations
 - Future improvements
