@@ -145,6 +145,12 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Added deterministic playoff bracket projection.
 - Added projected Super Bowl matchup and champion.
 
+### Visual Playoff Bracket
+
+- Updated the Upcoming Forecasts page with a visual projected playoff bracket.
+- Added bracket-style cards for Wild Card, Divisional, Conference Championship, and Super Bowl matchups.
+- Kept detailed playoff game data available in table form.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.

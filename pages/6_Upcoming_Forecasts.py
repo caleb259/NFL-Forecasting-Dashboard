@@ -73,6 +73,123 @@ def load_super_bowl_projection():
 
     with open(filepath, "r") as file:
         return json.load(file)
+    
+def get_seed_label(team, playoff_seeds):
+    """Return a team's playoff seed as a string."""
+    team_seed = playoff_seeds[playoff_seeds["team"] == team]
+
+    if len(team_seed) == 0:
+        return ""
+
+    seed = int(team_seed.iloc[0]["seed"])
+    return f"#{seed}"
+
+
+def render_bracket_game(row, playoff_seeds):
+    """Render one playoff game as a bracket-style card using native Streamlit components."""
+    home_team = row["home_team"]
+    away_team = row["away_team"]
+    winner = row["winner"]
+
+    home_seed = get_seed_label(home_team, playoff_seeds)
+    away_seed = get_seed_label(away_team, playoff_seeds)
+
+    home_logo = get_team_logo(home_team)
+    away_logo = get_team_logo(away_team)
+
+    if row["round"] == "Super Bowl":
+        matchup_label = f"{home_team} vs {away_team}"
+    else:
+        matchup_label = f"{away_team} at {home_team}"
+
+    with st.container(border=True):
+        st.caption(f"{row['conference']} • {row['round']}")
+        st.subheader(matchup_label)
+
+        team_col1, vs_col, team_col2 = st.columns([2, 1, 2])
+
+        with team_col1:
+            if away_logo:
+                st.image(away_logo, width=60)
+            st.write("Away Team")
+            st.write(f"**{away_seed} {away_team}**")
+
+        with vs_col:
+            st.markdown(
+                "<h3 style='text-align: center; margin-top: 35px;'>VS</h3>",
+                unsafe_allow_html=True
+            )
+
+        with team_col2:
+            if home_logo:
+                st.image(home_logo, width=60)
+            st.write("Home Team")
+            st.write(f"**{home_seed} {home_team}**")
+
+        st.success(f"Projected Winner: {winner}")
+
+
+def render_conference_bracket(conference, playoff_games, playoff_seeds):
+    """Render one conference playoff bracket."""
+    conference_games = playoff_games[
+        playoff_games["conference"] == conference
+    ].copy()
+
+    st.markdown(f"### {conference} Bracket")
+
+    round_order = [
+        "Wild Card",
+        "Divisional",
+        "Conference Championship",
+    ]
+
+    cols = st.columns(3)
+
+    for col, playoff_round in zip(cols, round_order):
+        with col:
+            st.markdown(f"#### {playoff_round}")
+
+            round_games = conference_games[
+                conference_games["round"] == playoff_round
+            ].copy()
+
+            if len(round_games) == 0:
+                st.info("No games available.")
+            else:
+                for _, row in round_games.iterrows():
+                    render_bracket_game(row, playoff_seeds)
+
+
+def render_super_bowl_bracket(playoff_games, playoff_seeds, super_bowl_projection):
+    """Render the projected Super Bowl game."""
+    super_bowl_game = playoff_games[
+        playoff_games["round"] == "Super Bowl"
+    ].copy()
+
+    st.markdown("### Projected Super Bowl")
+
+    if len(super_bowl_game) > 0:
+        render_bracket_game(super_bowl_game.iloc[0], playoff_seeds)
+
+    sb_col1, sb_col2, sb_col3 = st.columns(3)
+
+    with sb_col1:
+        st.metric(
+            "AFC Champion",
+            super_bowl_projection["afc_champion"]
+        )
+
+    with sb_col2:
+        st.metric(
+            "NFC Champion",
+            super_bowl_projection["nfc_champion"]
+        )
+
+    with sb_col3:
+        st.metric(
+            "Projected Champion",
+            super_bowl_projection["super_bowl_champion"]
+        )
 
 
 page_header(
@@ -362,147 +479,34 @@ try:
 
     st.divider()
 
-    section_header("Projected Playoff Picture")
+    section_header("Visual Projected Playoff Bracket")
 
     st.write(
-        "The projected playoff picture is based on the model's projected regular-season records. "
-        "Division winners receive seeds 1–4, and the next three teams in each conference receive wild card spots."
+        "This bracket uses the projected playoff seeds and picks winners using projected team strength. "
+        "The winner of each matchup is highlighted by the color accent on the left side of the card."
     )
 
-    for conference in ["AFC", "NFC"]:
-        st.markdown(f"### {conference} Projected Seeds")
+    render_conference_bracket(
+        "AFC",
+        playoff_games,
+        playoff_seeds
+    )
 
-        conference_seeds = playoff_seeds[
-            playoff_seeds["conference"] == conference
-        ].copy()
+    st.divider()
 
-        conference_seeds["team_name"] = conference_seeds["team"].apply(
-            get_team_name
-        )
+    render_conference_bracket(
+        "NFC",
+        playoff_games,
+        playoff_seeds
+    )
 
-        st.dataframe(
-            clean_column_names(
-                conference_seeds[
-                    [
-                        "seed",
-                        "team",
-                        "team_name",
-                        "division",
-                        "seed_type",
-                        "projected_wins",
-                        "projected_losses",
-                        "expected_wins",
-                        "expected_losses",
-                    ]
-                ]
-            ),
-            use_container_width=True,
-            hide_index=True
-        )
+    st.divider()
 
-        conference_out = first_teams_out[
-            first_teams_out["conference"] == conference
-        ].copy()
-
-        conference_out["team_name"] = conference_out["team"].apply(
-            get_team_name
-        )
-
-        st.markdown(f"#### {conference} First Teams Out")
-
-        st.dataframe(
-            clean_column_names(
-                conference_out[
-                    [
-                        "rank_out",
-                        "team",
-                        "team_name",
-                        "division",
-                        "projected_wins",
-                        "projected_losses",
-                        "expected_wins",
-                        "expected_losses",
-                    ]
-                ]
-            ),
-            use_container_width=True,
-            hide_index=True
-        )
-
-        st.divider()
-
-        section_header("Projected Playoff Bracket")
-
-        st.write(
-            "This deterministic playoff projection picks the higher-rated team in each matchup based on projected expected wins."
-        )
-
-        for playoff_round in [
-            "Wild Card",
-            "Divisional",
-            "Conference Championship",
-            "Super Bowl",
-        ]:
-            round_games = playoff_games[
-                playoff_games["round"] == playoff_round
-            ].copy()
-
-            if len(round_games) == 0:
-                continue
-
-            st.markdown(f"### {playoff_round}")
-
-            round_games["matchup"] = round_games.apply(
-                lambda row: f"{row['away_team']} at {row['home_team']}"
-                if row["round"] != "Super Bowl"
-                else f"{row['home_team']} vs {row['away_team']}",
-                axis=1,
-            )
-
-            st.dataframe(
-                clean_column_names(
-                    round_games[
-                        [
-                            "conference",
-                            "matchup",
-                            "home_team",
-                            "away_team",
-                            "winner",
-                            "loser",
-                        ]
-                    ]
-                ),
-                use_container_width=True,
-                hide_index=True
-            )
-
-        st.divider()
-
-        section_header("Projected Super Bowl")
-
-        sb_col1, sb_col2, sb_col3 = st.columns(3)
-
-        with sb_col1:
-            st.metric(
-                "AFC Champion",
-                super_bowl_projection["afc_champion"]
-            )
-
-        with sb_col2:
-            st.metric(
-                "NFC Champion",
-                super_bowl_projection["nfc_champion"]
-            )
-
-        with sb_col3:
-            st.metric(
-                "Projected Champion",
-                super_bowl_projection["super_bowl_champion"]
-            )
-
-        st.success(
-            f"Projected Super Bowl Champion: {super_bowl_projection['super_bowl_champion']}"
-        )
+    render_super_bowl_bracket(
+        playoff_games,
+        playoff_seeds,
+        super_bowl_projection
+    )
 
     st.divider()
 
