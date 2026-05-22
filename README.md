@@ -40,9 +40,11 @@ The Streamlit dashboard currently includes the following pages:
 The homepage shows:
 
 - Current model accuracy
+- Link/overview for 2026 upcoming forecasts
+- Dashboard section guide
 - Total games tested
 - Correct and incorrect picks
-- Weekly prediction table
+- Weekly model evaluation prediction table
 - Prediction cards for each game
 - Model details and features used
 

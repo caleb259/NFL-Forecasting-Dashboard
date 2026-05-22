@@ -30,10 +30,69 @@ main_header(
     subtitle="Explainable NFL game predictions powered by team stats, Elo ratings, strength of schedule, and machine learning."
 )
 
+st.markdown(
+    """
+    <div class="accent-card">
+        <h3 style="margin-top: 0;">🔮 New: 2026 Upcoming Forecasts</h3>
+        <p class="muted-text">
+            The dashboard now includes upcoming 2026 NFL season forecasts with predicted winners,
+            win probabilities, projected margins of victory, and projected team records.
+        </p>
+        <p class="muted-text">
+            Use the <strong>Upcoming Forecasts</strong> page in the sidebar to explore the full 2026 schedule predictions.
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+section_header("Dashboard Sections")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.markdown(
+        """
+        <div class="accent-card">
+            <h4>🔮 Upcoming Forecasts</h4>
+            <p class="muted-text">
+                View 2026 predicted winners, win probabilities, projected margins, and projected records.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+with col2:
+    st.markdown(
+        """
+        <div class="accent-card">
+            <h4>🏈 Game Breakdown</h4>
+            <p class="muted-text">
+                Select one matchup and review the model inputs, prediction, and feature values.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+with col3:
+    st.markdown(
+        """
+        <div class="accent-card">
+            <h4>📊 Model Performance</h4>
+            <p class="muted-text">
+                Review model accuracy, weekly performance, confidence levels, and prediction results.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 st.write(
     "This dashboard uses NFL team data and machine learning to predict game outcomes. "
-    "The current version uses a Logistic Regression model trained on the 2018–2024 seasons "
-    "and tested on the 2025 season."
+    "The current model was evaluated on the 2025 season and is now also used to generate "
+    "upcoming 2026 season forecasts."
 )
 
 st.divider()
@@ -57,7 +116,7 @@ try:
 
     st.divider()
 
-    section_header("2025 Game Predictions")
+    section_header("2025 Model Evaluation Predictions")
 
     # Week selector
     weeks = sorted(predictions["week"].unique())
