@@ -284,6 +284,7 @@ NFL-Forecasting-Dashboard/
 - Added deterministic playoff bracket predictor
 - Added projected Super Bowl champion
 - Added visual playoff bracket layout
+- Added visual cards for projected standings and playoff seeds
 
 ## Current Limitations
 

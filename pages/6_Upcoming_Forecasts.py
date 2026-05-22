@@ -128,6 +128,134 @@ def render_bracket_game(row, playoff_seeds):
 
         st.success(f"Projected Winner: {winner}")
 
+def render_team_record_card(row, rank=None):
+    """Render one team record as a small visual card."""
+    team = row["team"]
+    team_name = get_team_name(team)
+    team_logo = get_team_logo(team)
+    team_color = get_team_primary_color(team)
+
+    projected_record = f"{int(row['projected_wins'])}-{int(row['projected_losses'])}"
+    expected_record = f"{row['expected_wins']}-{row['expected_losses']}"
+
+    with st.container(border=True):
+        col1, col2, col3 = st.columns([1, 4, 2])
+
+        with col1:
+            if team_logo:
+                st.image(team_logo, width=55)
+
+        with col2:
+            if rank is not None:
+                st.markdown(f"**#{rank} {team}**")
+            else:
+                st.markdown(f"**{team}**")
+
+            st.caption(team_name)
+
+        with col3:
+            st.markdown(f"**Projected:** {projected_record}")
+            st.caption(f"Expected: {expected_record}")
+
+
+def render_division_cards(projected_records_display):
+    """Render projected division standings as card-style groups."""
+    division_order = [
+        "AFC East",
+        "AFC North",
+        "AFC South",
+        "AFC West",
+        "NFC East",
+        "NFC North",
+        "NFC South",
+        "NFC West",
+    ]
+
+    for division in division_order:
+        division_table = projected_records_display[
+            projected_records_display["division"] == division
+        ].copy()
+
+        division_table = division_table.sort_values(
+            ["projected_wins", "expected_wins"],
+            ascending=False
+        ).reset_index(drop=True)
+
+        st.markdown(f"### {division}")
+
+        for index, row in division_table.iterrows():
+            render_team_record_card(row, rank=index + 1)
+
+
+def render_playoff_seed_cards(playoff_seeds, first_teams_out):
+    """Render projected playoff seeds and first teams out as cards."""
+    for conference in ["AFC", "NFC"]:
+        st.markdown(f"### {conference} Projected Seeds")
+
+        conference_seeds = playoff_seeds[
+            playoff_seeds["conference"] == conference
+        ].copy()
+
+        conference_seeds = conference_seeds.sort_values("seed")
+
+        for _, row in conference_seeds.iterrows():
+            team = row["team"]
+            team_name = get_team_name(team)
+            team_logo = get_team_logo(team)
+
+            projected_record = (
+                f"{int(row['projected_wins'])}-{int(row['projected_losses'])}"
+            )
+            expected_record = f"{row['expected_wins']}-{row['expected_losses']}"
+
+            with st.container(border=True):
+                col1, col2, col3 = st.columns([1, 4, 2])
+
+                with col1:
+                    if team_logo:
+                        st.image(team_logo, width=55)
+
+                with col2:
+                    st.markdown(f"**#{int(row['seed'])} {team}**")
+                    st.caption(f"{team_name} • {row['division']} • {row['seed_type']}")
+
+                with col3:
+                    st.markdown(f"**Projected:** {projected_record}")
+                    st.caption(f"Expected: {expected_record}")
+
+        st.markdown(f"#### {conference} First Teams Out")
+
+        conference_out = first_teams_out[
+            first_teams_out["conference"] == conference
+        ].copy()
+
+        conference_out = conference_out.sort_values("rank_out")
+
+        for _, row in conference_out.iterrows():
+            team = row["team"]
+            team_name = get_team_name(team)
+            team_logo = get_team_logo(team)
+
+            projected_record = (
+                f"{int(row['projected_wins'])}-{int(row['projected_losses'])}"
+            )
+            expected_record = f"{row['expected_wins']}-{row['expected_losses']}"
+
+            with st.container(border=True):
+                col1, col2, col3 = st.columns([1, 4, 2])
+
+                with col1:
+                    if team_logo:
+                        st.image(team_logo, width=50)
+
+                with col2:
+                    st.markdown(f"**#{int(row['rank_out'])} {team}**")
+                    st.caption(f"{team_name} • {row['division']}")
+
+                with col3:
+                    st.markdown(f"**Projected:** {projected_record}")
+                    st.caption(f"Expected: {expected_record}")
+
 
 def render_conference_bracket(conference, playoff_games, playoff_seeds):
     """Render one conference playoff bracket."""
@@ -415,35 +543,16 @@ try:
         "NFC West",
     ]
 
-    for division in division_order:
-        division_table = projected_records_display[
-            projected_records_display["division"] == division
-        ].copy()
+    render_division_cards(projected_records_display)
 
-        division_table = division_table.sort_values(
-            ["projected_wins", "expected_wins"],
-            ascending=False
-        ).reset_index(drop=True)
-
-        st.markdown(f"### {division}")
-
+    with st.expander("View division standings table"):
         st.dataframe(
-            clean_column_names(division_table[
-                [
-                    "team",
-                    "team_name",
-                    "projected_wins",
-                    "projected_losses",
-                    "expected_wins",
-                    "expected_losses",
-                ]
-            ]),
+            clean_column_names(projected_records_display),
             use_container_width=True,
             hide_index=True
         )
 
-        st.divider()
-
+    st.divider()
 
     section_header("Projected Conference Standings")
 
@@ -476,6 +585,32 @@ try:
         use_container_width=True,
         hide_index=True
     )
+
+    st.divider()
+
+    section_header("Projected Playoff Seeds")
+
+    st.write(
+        "The projected playoff seeds are based on the model's projected regular-season records. "
+        "Division winners receive seeds 1–4, and the next three teams in each conference receive wild card spots."
+    )
+
+    render_playoff_seed_cards(playoff_seeds, first_teams_out)
+
+    with st.expander("View playoff seed tables"):
+        st.markdown("### Projected Playoff Seeds")
+        st.dataframe(
+            clean_column_names(playoff_seeds),
+            use_container_width=True,
+            hide_index=True
+        )
+
+        st.markdown("### First Teams Out")
+        st.dataframe(
+            clean_column_names(first_teams_out),
+            use_container_width=True,
+            hide_index=True
+        )
 
     st.divider()
 

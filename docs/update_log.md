@@ -151,6 +151,13 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Added bracket-style cards for Wild Card, Divisional, Conference Championship, and Super Bowl matchups.
 - Kept detailed playoff game data available in table form.
 
+### Standings Visual Polish
+
+- Added card-style projected division standings.
+- Added logo-based projected playoff seed cards.
+- Added logo-based first-teams-out cards.
+- Kept detailed standings tables available in expandable sections.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.
