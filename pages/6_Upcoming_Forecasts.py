@@ -5,7 +5,7 @@ import sys
 
 sys.path.append("src")
 
-from style import apply_global_styles, page_header, section_header
+from style import apply_global_styles, page_header, section_header, clean_column_names
 from team_info import (
     get_team_logo,
     get_team_name,
@@ -131,7 +131,7 @@ try:
     ].copy()
 
     st.dataframe(
-        display_table,
+        clean_column_names(display_table),
         use_container_width=True,
         hide_index=True
     )
@@ -240,7 +240,7 @@ try:
     ]
 
     st.dataframe(
-        projected_records_display,
+        clean_column_names(projected_records_display),
         use_container_width=True,
         hide_index=True
     )
@@ -278,7 +278,7 @@ try:
         st.markdown(f"### {division}")
 
         st.dataframe(
-            division_table[
+            clean_column_names(division_table[
                 [
                     "team",
                     "team_name",
@@ -287,7 +287,7 @@ try:
                     "expected_wins",
                     "expected_losses",
                 ]
-            ],
+            ]),
             use_container_width=True,
             hide_index=True
         )
@@ -312,7 +312,7 @@ try:
     ).reset_index(drop=True)
 
     st.dataframe(
-        conference_table[
+        clean_column_names(conference_table[
             [
                 "team",
                 "team_name",
@@ -322,7 +322,7 @@ try:
                 "expected_wins",
                 "expected_losses",
             ]
-        ],
+        ]),
         use_container_width=True,
         hide_index=True
     )

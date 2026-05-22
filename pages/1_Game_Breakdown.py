@@ -5,7 +5,7 @@ import sys
 sys.path.append("src")
 
 from team_info import get_team_logo, get_team_name, get_team_primary_color
-from style import apply_global_styles, page_header, section_header
+from style import apply_global_styles, page_header, section_header, clean_column_names
 
 
 st.set_page_config(
@@ -205,7 +205,7 @@ try:
     )
 
     st.dataframe(
-        probability_table,
+        clean_column_names(probability_table),
         use_container_width=True,
         hide_index=True
     )
@@ -298,7 +298,7 @@ try:
     feature_breakdown["Value"] = feature_breakdown["Value"].round(3)
 
     st.dataframe(
-        feature_breakdown,
+        clean_column_names(feature_breakdown),
         use_container_width=True,
         hide_index=True
     )

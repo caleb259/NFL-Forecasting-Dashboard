@@ -3,7 +3,7 @@ import streamlit as st
 import sys
 sys.path.append("src")
 
-from style import apply_global_styles, page_header, section_header
+from style import apply_global_styles, page_header, section_header, clean_column_names
 
 
 st.set_page_config(
@@ -84,7 +84,7 @@ model_results = pd.DataFrame(
 )
 
 st.dataframe(
-    model_results,
+    clean_column_names(model_results),
     use_container_width=True,
     hide_index=True
 )

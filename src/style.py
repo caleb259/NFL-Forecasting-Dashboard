@@ -155,3 +155,75 @@ def small_section_header(title):
         """,
         unsafe_allow_html=True
     )
+
+def clean_column_names(df):
+    """
+    Return a copy of a DataFrame with cleaner column names for display.
+    """
+    rename_map = {
+        "season": "Season",
+        "week": "Week",
+        "game_id": "Game ID",
+        "gameday": "Game Date",
+        "weekday": "Weekday",
+        "home_team": "Home Team",
+        "away_team": "Away Team",
+        "home_score": "Home Score",
+        "away_score": "Away Score",
+        "home_team_won": "Home Team Won",
+        "predicted_home_win": "Predicted Home Win",
+        "home_win_probability": "Home Win Probability",
+        "away_win_probability": "Away Win Probability",
+        "home_win_probability_percent": "Home Win Probability",
+        "away_win_probability_percent": "Away Win Probability",
+        "predicted_winner": "Predicted Winner",
+        "actual_winner": "Actual Winner",
+        "correct_prediction": "Correct Prediction",
+        "result": "Result",
+        "confidence": "Confidence",
+        "status": "Status",
+        "predicted_home_margin": "Predicted Home Margin",
+        "predicted_margin_text": "Projected Margin",
+        "predicted_margin_abs": "Projected Margin",
+        "team": "Team",
+        "team_name": "Team Name",
+        "conference": "Conference",
+        "division": "Division",
+        "actual_wins": "Actual Wins",
+        "actual_losses": "Actual Losses",
+        "projected_wins": "Projected Wins",
+        "projected_losses": "Projected Losses",
+        "expected_wins": "Expected Wins",
+        "expected_losses": "Expected Losses",
+        "number_of_games": "Number of Games",
+        "accuracy_percent": "Accuracy",
+        "accuracy": "Accuracy",
+        "prediction_result": "Prediction Result",
+        "game_result": "Game Result",
+        "location": "Location",
+        "opponent": "Opponent",
+        "team_score": "Team Score",
+        "opponent_score": "Opponent Score",
+        "team_win_probability_percent": "Team Win Probability",
+        "model": "Model",
+        "Model Version": "Model Version",
+        "Accuracy": "Accuracy",
+        "Notes": "Notes",
+        "Feature": "Feature",
+        "Value": "Value",
+        "Explanation": "Explanation",
+        "home_strength_of_schedule_before": "Home Strength of Schedule",
+        "away_strength_of_schedule_before": "Away Strength of Schedule",
+        "strength_of_schedule_diff": "Strength of Schedule Difference",
+        "current_opponent_win_pct_diff": "Current Opponent Win % Difference",
+        "home_elo_before": "Home Elo",
+        "away_elo_before": "Away Elo",
+        "elo_diff": "Elo Difference",
+        "home_elo_with_hfa_diff": "Elo Difference with Home Field",
+        "elo_home_win_prob": "Elo Home Win Probability",
+    }
+
+    display_df = df.copy()
+    display_df = display_df.rename(columns=rename_map)
+
+    return display_df

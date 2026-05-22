@@ -132,6 +132,11 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Best margin model MAE: 10.28 points.
 - Updated `src/predict_upcoming.py` to use Random Forest Regressor for projected margins.
 
+### Dashboard Table Formatting
+
+- Added reusable `clean_column_names()` helper in `src/style.py`.
+- Updated dashboard tables to display cleaner column names instead of raw dataset column names.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.
@@ -190,9 +195,5 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 Possible next steps:
 
 - Create a reusable feature engineering script.
-- Add strength of schedule features.
 - Tune Elo settings.
-- Add team logos and colors.
 - Improve dashboard styling.
-- Add future game prediction support.
-- Deploy the Streamlit app publicly.

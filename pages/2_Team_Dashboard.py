@@ -5,7 +5,7 @@ import sys
 sys.path.append("src")
 
 from team_info import get_team_logo, get_team_name, get_team_primary_color
-from style import apply_global_styles, page_header, section_header
+from style import apply_global_styles, page_header, section_header, clean_column_names
 
 
 st.set_page_config(
@@ -189,7 +189,7 @@ try:
     ]
 
     st.dataframe(
-        team_games[display_columns],
+        clean_column_names(team_games[display_columns]),
         use_container_width=True,
         hide_index=True
     )

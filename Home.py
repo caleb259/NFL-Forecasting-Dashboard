@@ -5,7 +5,7 @@ import sys
 sys.path.append("src")
 
 from team_info import get_team_logo, get_team_name, get_team_primary_color
-from style import apply_global_styles, main_header, section_header
+from style import apply_global_styles, main_header, section_header, clean_column_names
 
 
 st.set_page_config(
@@ -196,7 +196,7 @@ try:
     ]
 
     st.dataframe(
-        week_predictions[display_columns],
+        clean_column_names(week_predictions[display_columns]),
         use_container_width=True,
         hide_index=True
     )

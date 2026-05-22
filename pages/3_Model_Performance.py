@@ -3,7 +3,7 @@ import streamlit as st
 import sys
 sys.path.append("src")
 
-from style import apply_global_styles, page_header, section_header
+from style import apply_global_styles, page_header, section_header, clean_column_names
 
 
 st.set_page_config(
@@ -62,7 +62,7 @@ try:
     accuracy_by_week = accuracy_by_week.drop(columns=["correct_prediction"])
 
     st.dataframe(
-        accuracy_by_week,
+        clean_column_names(accuracy_by_week),
         use_container_width=True,
         hide_index=True
     )
@@ -136,7 +136,7 @@ try:
     confidence_accuracy = confidence_accuracy.drop(columns=["mean"])
 
     st.dataframe(
-        confidence_accuracy,
+        clean_column_names(confidence_accuracy),
         use_container_width=True,
         hide_index=True
     )
@@ -175,7 +175,7 @@ try:
     ]
 
     st.dataframe(
-        predictions_display[display_columns],
+        clean_column_names(predictions_display[display_columns]),
         use_container_width=True,
         hide_index=True
     )

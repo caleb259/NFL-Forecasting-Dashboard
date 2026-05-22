@@ -279,6 +279,7 @@ NFL-Forecasting-Dashboard/
 - Added forecast update process documentation
 - Tested margin of victory regression models
 - Updated upcoming forecast pipeline to use Random Forest Regressor for projected margins
+- Added cleaner table column names across the dashboard
 
 ## Current Limitations
 
