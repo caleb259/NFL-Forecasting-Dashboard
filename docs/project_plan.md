@@ -268,6 +268,10 @@ NFL-Forecasting-Dashboard/
 - Added team logos and team-color accents to the dashboard homepage
 - Added reusable dashboard styling helper
 - Refactored dashboard pages for more consistent visual design
+- Added upcoming 2026 forecast pipeline
+- Added predicted margin of victory
+- Added projected team records
+- Added Upcoming Forecasts dashboard page
 
 ## Current Limitations
 

@@ -97,6 +97,15 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Elo feature model accuracy: 63.51%.
 - Elo became the best-performing model feature upgrade.
 
+### Upcoming Forecasts
+
+- Created `src/predict_upcoming.py`.
+- Added support for 2026 scheduled game forecasts.
+- Added predicted margin of victory using a regression model.
+- Created projected team records based on forecasted winners.
+- Created expected team records based on win probabilities.
+- Added the Upcoming Forecasts dashboard page.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.

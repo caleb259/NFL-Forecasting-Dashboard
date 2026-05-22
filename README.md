@@ -102,6 +102,17 @@ This page explains the project in plain English, including:
 - Current limitations
 - Future improvements
 
+### Upcoming Forecasts
+
+The Upcoming Forecasts page shows:
+
+- 2026 scheduled game predictions
+- Predicted winners
+- Home and away win probabilities
+- Projected margin of victory
+- Projected team records
+- Expected team records based on win probabilities
+
 ## Dashboard Preview
 
 ### Home
