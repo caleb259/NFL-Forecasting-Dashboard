@@ -199,6 +199,12 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Generated plain-English forecast takeaways from projected records, upcoming predictions, and playoff projections.
 - Added storylines for projected champion, top projected team, closest game, largest projected margin, most confident forecast, most competitive division, and upset watch.
 
+### Playoff Predictor Page
+
+- Created a dedicated Playoff Predictor page.
+- Moved detailed projected playoff seeds, first teams out, bracket, and Super Bowl projection into its own page.
+- Simplified the Upcoming Forecasts page so it can focus more on regular-season forecasts and standings.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.

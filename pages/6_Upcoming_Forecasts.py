@@ -623,60 +623,32 @@ try:
 
     st.divider()
 
-    section_header("Projected Playoff Seeds")
+    section_header("Playoff Projection")
 
     st.write(
-        "The projected playoff seeds are based on the model's projected regular-season records. "
-        "Division winners receive seeds 1–4, and the next three teams in each conference receive wild card spots."
+        "Projected playoff seeds, the full projected bracket, first teams out, and the projected Super Bowl champion "
+        "are available on the Playoff Predictor page."
     )
 
-    render_playoff_seed_cards(playoff_seeds, first_teams_out)
+    sb_col1, sb_col2, sb_col3 = st.columns(3)
 
-    with st.expander("View playoff seed tables"):
-        st.markdown("### Projected Playoff Seeds")
-        st.dataframe(
-            clean_column_names(playoff_seeds),
-            use_container_width=True,
-            hide_index=True
+    with sb_col1:
+        st.metric(
+            "AFC Champion",
+            super_bowl_projection["afc_champion"]
         )
 
-        st.markdown("### First Teams Out")
-        st.dataframe(
-            clean_column_names(first_teams_out),
-            use_container_width=True,
-            hide_index=True
+    with sb_col2:
+        st.metric(
+            "NFC Champion",
+            super_bowl_projection["nfc_champion"]
         )
 
-    st.divider()
-
-    section_header("Visual Projected Playoff Bracket")
-
-    st.write(
-        "This bracket uses the projected playoff seeds and picks winners using projected team strength. "
-        "The winner of each matchup is highlighted by the color accent on the left side of the card."
-    )
-
-    render_conference_bracket(
-        "AFC",
-        playoff_games,
-        playoff_seeds
-    )
-
-    st.divider()
-
-    render_conference_bracket(
-        "NFC",
-        playoff_games,
-        playoff_seeds
-    )
-
-    st.divider()
-
-    render_super_bowl_bracket(
-        playoff_games,
-        playoff_seeds,
-        super_bowl_projection
-    )
+    with sb_col3:
+        st.metric(
+            "Projected Champion",
+            super_bowl_projection["super_bowl_champion"]
+        )
 
     st.divider()
 

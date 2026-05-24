@@ -140,6 +140,18 @@ The Upcoming Forecasts page shows:
 - Confidence labels for each forecast
 - Upset alerts for selected matchups
 
+### Playoff Predictor
+
+The Playoff Predictor page shows:
+
+- Projected AFC and NFC playoff seeds
+- First teams out of the playoff picture
+- Visual projected playoff bracket
+- Projected AFC and NFC champions
+- Projected Super Bowl matchup
+- Projected Super Bowl champion
+- Detailed playoff projection tables
+
 ## Dashboard Preview
 
 ### Home
@@ -308,7 +320,8 @@ NFL-Forecasting-Dashboard/
 │   ├── 3_Model_Performance.py
 │   ├── 4_Model_Comparison.py
 │   ├── 5_How_The_Model_Works.py
-│   └── 6_Upcoming_Forecasts.py
+│   ├── 6_Upcoming_Forecasts.py
+│   └── 7_Playoff_Predictor.py
 │
 └── src/
     └── train_model.py

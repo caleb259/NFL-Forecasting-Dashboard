@@ -291,6 +291,7 @@ NFL-Forecasting-Dashboard/
 - Added 2026 team forecast outlook to Team Dashboard
 - Added confidence labels and upset alerts to game forecasts
 - Added Top 2026 Forecast Storylines to the homepage
+- Created dedicated Playoff Predictor dashboard page
 
 ## Current Limitations
 
