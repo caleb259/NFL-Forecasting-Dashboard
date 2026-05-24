@@ -161,6 +161,10 @@ The What If Simulator page allows users to:
 - Flip projected wins and losses
 - Compare original projected record to adjusted projected record
 - View changed games and adjusted schedule results
+- Recalculate league-wide projected records after changed outcomes
+- View adjusted division standings
+- View adjusted conference standings
+- See which teams are affected by scenario changes
 
 ## Dashboard Preview
 

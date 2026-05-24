@@ -212,6 +212,14 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Users can flip projected wins and losses for a selected team.
 - Added adjusted projected record, win/loss change, changed games table, and adjusted schedule view.
 
+### What If Simulator League-Wide Records
+
+- Updated the What If Simulator so changed game outcomes affect both teams.
+- Added adjusted league-wide projected records.
+- Added teams affected by scenario changes.
+- Added adjusted division standings.
+- Added adjusted conference standings.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.

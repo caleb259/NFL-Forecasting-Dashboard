@@ -123,6 +123,186 @@ def calculate_adjusted_record(team_games, selected_outcomes):
 
     return adjusted_wins, adjusted_losses, changed_games
 
+def build_original_league_records(predictions):
+    """
+    Build original projected league records from upcoming predictions.
+    Uses predicted winners from every forecasted game.
+    """
+    teams = sorted(
+        set(predictions["home_team"].unique()).union(
+            set(predictions["away_team"].unique())
+        )
+    )
+
+    records = {
+        team: {
+            "team": team,
+            "projected_wins": 0,
+            "projected_losses": 0,
+            "expected_wins": 0.0,
+            "expected_losses": 0.0,
+        }
+        for team in teams
+    }
+
+    for _, row in predictions.iterrows():
+        home_team = row["home_team"]
+        away_team = row["away_team"]
+        predicted_winner = row["predicted_winner"]
+
+        predicted_loser = away_team if predicted_winner == home_team else home_team
+
+        records[predicted_winner]["projected_wins"] += 1
+        records[predicted_loser]["projected_losses"] += 1
+
+        records[home_team]["expected_wins"] += row["home_win_probability"]
+        records[home_team]["expected_losses"] += row["away_win_probability"]
+
+        records[away_team]["expected_wins"] += row["away_win_probability"]
+        records[away_team]["expected_losses"] += row["home_win_probability"]
+
+    records_df = pd.DataFrame(records.values())
+
+    records_df["expected_wins"] = records_df["expected_wins"].round(1)
+    records_df["expected_losses"] = records_df["expected_losses"].round(1)
+
+    return records_df
+
+
+def apply_what_if_changes_to_league(predictions, selected_team, selected_outcomes):
+    """
+    Recalculate league-wide projected records after user changes selected team's games.
+    Each changed result affects both teams in that game.
+    """
+    adjusted_predictions = predictions.copy()
+
+    for index, row in adjusted_predictions.iterrows():
+        game_id = row["game_id"]
+
+        if game_id not in selected_outcomes:
+            continue
+
+        selected_team_result = selected_outcomes[game_id]
+
+        home_team = row["home_team"]
+        away_team = row["away_team"]
+
+        if selected_team_result == "Win":
+            adjusted_winner = selected_team
+        else:
+            adjusted_winner = away_team if selected_team == home_team else home_team
+
+        adjusted_predictions.loc[index, "adjusted_winner"] = adjusted_winner
+
+    adjusted_predictions["adjusted_winner"] = adjusted_predictions[
+        "adjusted_winner"
+    ].fillna(adjusted_predictions["predicted_winner"])
+
+    teams = sorted(
+        set(adjusted_predictions["home_team"].unique()).union(
+            set(adjusted_predictions["away_team"].unique())
+        )
+    )
+
+    records = {
+        team: {
+            "team": team,
+            "adjusted_wins": 0,
+            "adjusted_losses": 0,
+        }
+        for team in teams
+    }
+
+    for _, row in adjusted_predictions.iterrows():
+        home_team = row["home_team"]
+        away_team = row["away_team"]
+        adjusted_winner = row["adjusted_winner"]
+
+        adjusted_loser = away_team if adjusted_winner == home_team else home_team
+
+        records[adjusted_winner]["adjusted_wins"] += 1
+        records[adjusted_loser]["adjusted_losses"] += 1
+
+    adjusted_records = pd.DataFrame(records.values())
+
+    return adjusted_records, adjusted_predictions
+
+
+def create_adjusted_standings(original_records, adjusted_records, projected_records):
+    """
+    Combine original projected records, adjusted records, and team metadata.
+    """
+    standings = original_records.merge(
+        adjusted_records,
+        on="team",
+        how="left"
+    )
+
+    metadata_cols = [
+        "team",
+        "conference",
+        "division",
+        "expected_wins",
+        "expected_losses",
+    ]
+
+    metadata = projected_records[metadata_cols].copy()
+
+    standings = standings.drop(
+        columns=["expected_wins", "expected_losses"],
+        errors="ignore"
+    )
+
+    standings = standings.merge(
+        metadata,
+        on="team",
+        how="left"
+    )
+
+    standings["win_change"] = (
+        standings["adjusted_wins"] - standings["projected_wins"]
+    )
+
+    standings["loss_change"] = (
+        standings["adjusted_losses"] - standings["projected_losses"]
+    )
+
+    standings["original_record"] = (
+        standings["projected_wins"].astype(int).astype(str)
+        + "-"
+        + standings["projected_losses"].astype(int).astype(str)
+    )
+
+    standings["adjusted_record"] = (
+        standings["adjusted_wins"].astype(int).astype(str)
+        + "-"
+        + standings["adjusted_losses"].astype(int).astype(str)
+    )
+
+    standings = standings.sort_values(
+        ["adjusted_wins", "expected_wins"],
+        ascending=False
+    ).reset_index(drop=True)
+
+    return standings
+
+
+def get_most_affected_teams(adjusted_standings):
+    """
+    Return teams whose records changed from the what-if scenario.
+    """
+    affected = adjusted_standings[
+        (adjusted_standings["win_change"] != 0)
+        | (adjusted_standings["loss_change"] != 0)
+    ].copy()
+
+    affected = affected.sort_values(
+        ["win_change", "loss_change"],
+        ascending=[False, True]
+    )
+
+    return affected
+
 
 def render_team_header(selected_team):
     """Render selected team header."""
@@ -305,6 +485,143 @@ try:
 
     st.divider()
 
+    section_header("Adjusted League Impact")
+
+    st.write(
+        "This section recalculates league-wide projected records after your changes. "
+        "Each changed game affects both the selected team and its opponent."
+    )
+
+    original_league_records = build_original_league_records(predictions)
+
+    adjusted_league_records, adjusted_predictions = apply_what_if_changes_to_league(
+        predictions,
+        selected_team,
+        selected_outcomes
+    )
+
+    adjusted_standings = create_adjusted_standings(
+        original_league_records,
+        adjusted_league_records,
+        projected_records
+    )
+
+    affected_teams = get_most_affected_teams(adjusted_standings)
+
+    if len(affected_teams) > 0:
+        st.markdown("### Teams Affected by This Scenario")
+
+        affected_display = affected_teams[
+            [
+                "team",
+                "conference",
+                "division",
+                "original_record",
+                "adjusted_record",
+                "win_change",
+                "loss_change",
+            ]
+        ].copy()
+
+        st.dataframe(
+            clean_column_names(affected_display),
+            use_container_width=True,
+            hide_index=True
+        )
+    else:
+        st.info("No league-wide records changed because no game outcomes were changed.")
+
+        st.divider()
+
+        st.markdown("### Adjusted Division Standings")
+
+    division_order = [
+        "AFC East",
+        "AFC North",
+        "AFC South",
+        "AFC West",
+        "NFC East",
+        "NFC North",
+        "NFC South",
+        "NFC West",
+    ]
+
+    selected_division = st.selectbox(
+        "Select a division to view adjusted standings",
+        division_order
+    )
+
+    division_standings = adjusted_standings[
+        adjusted_standings["division"] == selected_division
+    ].copy()
+
+    division_standings = division_standings.sort_values(
+        ["adjusted_wins", "expected_wins"],
+        ascending=False
+    )
+
+    division_display = division_standings[
+        [
+            "team",
+            "original_record",
+            "adjusted_record",
+            "win_change",
+            "loss_change",
+            "expected_wins",
+            "expected_losses",
+        ]
+    ].copy()
+
+    st.dataframe(
+        clean_column_names(division_display),
+        use_container_width=True,
+        hide_index=True
+    )
+
+    st.divider()
+
+    st.markdown("### Adjusted Conference Standings")
+
+    selected_conference = st.selectbox(
+        "Select a conference to view adjusted standings",
+        ["AFC", "NFC"]
+    )
+
+    conference_standings = adjusted_standings[
+        adjusted_standings["conference"] == selected_conference
+    ].copy()
+
+    conference_standings = conference_standings.sort_values(
+        ["adjusted_wins", "expected_wins"],
+        ascending=False
+    ).reset_index(drop=True)
+
+    conference_standings["adjusted_conference_rank"] = (
+        conference_standings.index + 1
+    )
+
+    conference_display = conference_standings[
+        [
+            "adjusted_conference_rank",
+            "team",
+            "division",
+            "original_record",
+            "adjusted_record",
+            "win_change",
+            "loss_change",
+            "expected_wins",
+            "expected_losses",
+        ]
+    ].copy()
+
+    st.dataframe(
+        clean_column_names(conference_display),
+        use_container_width=True,
+        hide_index=True
+    )
+
+    st.divider()
+
     section_header("Adjusted Schedule View")
 
     adjusted_rows = []
@@ -343,14 +660,13 @@ try:
     section_header("What This Simulator Does")
 
     st.write(
-        "This simulator lets you test simple team-level scenarios by changing projected wins and losses. "
-        "It does not currently recalculate every other team's record, division standings, conference standings, "
-        "or playoff seeds."
+        "This simulator lets you test team-level scenarios by changing projected wins and losses. "
+        "When a game result is changed, both teams in that matchup are updated in the adjusted league standings."
     )
 
     st.write(
-        "A future version can expand this into a full league-wide simulator where changing one game updates both teams, "
-        "the division standings, playoff picture, and projected Super Bowl bracket."
+        "The simulator now recalculates adjusted league records, division standings, and conference standings. "
+        "A future version can also recalculate playoff seeds, playoff brackets, and the projected Super Bowl champion from the adjusted standings."
     )
 
 except FileNotFoundError:

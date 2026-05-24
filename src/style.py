@@ -234,6 +234,15 @@ def clean_column_names(df):
         "confidence_level": "Confidence Level",
         "upset_alert": "Upset Alert",
         "upset_alert_label": "Upset Alert",
+        "adjusted_wins": "Adjusted Wins",
+        "adjusted_losses": "Adjusted Losses",
+        "win_change": "Win Change",
+        "loss_change": "Loss Change",
+        "original_record": "Original Record",
+        "adjusted_record": "Adjusted Record",
+        "adjusted_conference_rank": "Adjusted Conference Rank",
+        "original_result": "Original Result",
+        "adjusted_result": "Adjusted Result",
     }
 
     display_df = df.copy()

@@ -293,6 +293,7 @@ NFL-Forecasting-Dashboard/
 - Added Top 2026 Forecast Storylines to the homepage
 - Created dedicated Playoff Predictor dashboard page
 - Added team-level What If Simulator page
+- Added league-wide adjusted standings to What If Simulator
 
 ## Current Limitations
 
