@@ -205,6 +205,13 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Moved detailed projected playoff seeds, first teams out, bracket, and Super Bowl projection into its own page.
 - Simplified the Upcoming Forecasts page so it can focus more on regular-season forecasts and standings.
 
+### What If Simulator
+
+- Created a What If Simulator page.
+- Added team-level scenario testing for 2026 forecasts.
+- Users can flip projected wins and losses for a selected team.
+- Added adjusted projected record, win/loss change, changed games table, and adjusted schedule view.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.

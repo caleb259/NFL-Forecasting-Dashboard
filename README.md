@@ -152,6 +152,16 @@ The Playoff Predictor page shows:
 - Projected Super Bowl champion
 - Detailed playoff projection tables
 
+### What If Simulator
+
+The What If Simulator page allows users to:
+
+- Select a team
+- View the team's 2026 forecasted schedule
+- Flip projected wins and losses
+- Compare original projected record to adjusted projected record
+- View changed games and adjusted schedule results
+
 ## Dashboard Preview
 
 ### Home
@@ -321,7 +331,8 @@ NFL-Forecasting-Dashboard/
 │   ├── 4_Model_Comparison.py
 │   ├── 5_How_The_Model_Works.py
 │   ├── 6_Upcoming_Forecasts.py
-│   └── 7_Playoff_Predictor.py
+│   ├── 7_Playoff_Predictor.py
+│   └── 8_What_If_Simulator.py
 │
 └── src/
     └── train_model.py
