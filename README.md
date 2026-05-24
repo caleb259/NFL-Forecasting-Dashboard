@@ -75,6 +75,11 @@ The Team Dashboard page allows users to select a team and view:
 - Average team win probability
 - Game-by-game results
 - Team win probability by week
+- 2026 projected record
+- Expected record
+- Playoff status
+- Most winnable and toughest projected games
+- Full 2026 team schedule forecast
 
 ### Model Performance
 

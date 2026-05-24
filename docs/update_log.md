@@ -178,6 +178,14 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Added upcoming game cards using 2026 forecast data.
 - Reframed the 2025 game cards as historical model evaluation.
 
+### Team Dashboard 2026 Forecast Outlook
+
+- Added 2026 team forecast outlook to the Team Dashboard.
+- Added projected record, expected record, division, and playoff status for selected teams.
+- Added most winnable game, toughest game, and closest projected game.
+- Added full 2026 schedule forecast table for selected teams.
+- Moved 2025 team results into a historical model evaluation section.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.
