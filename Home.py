@@ -112,6 +112,19 @@ def render_forecast_hub_card(title, main_value, subtext=None, team=None):
         if subtext:
             st.caption(subtext)
 
+def get_next_upcoming_week(upcoming_predictions):
+    """
+    Return the earliest week that still has pending upcoming games.
+    """
+    pending_games = upcoming_predictions[
+        upcoming_predictions["status"] == "Pending"
+    ].copy()
+
+    if len(pending_games) == 0:
+        return upcoming_predictions["week"].min()
+
+    return pending_games["week"].min()
+
 
 main_header(
     title="Fourth & Forecast",
@@ -224,6 +237,122 @@ except FileNotFoundError:
         "Forecast hub data is not available yet. Run `python src/predict_upcoming.py` to generate forecast files."
     )
 
+try:
+    upcoming_predictions = load_upcoming_predictions()
+
+    upcoming_predictions["gameday"] = pd.to_datetime(
+        upcoming_predictions["gameday"]
+    )
+
+    next_week = get_next_upcoming_week(upcoming_predictions)
+
+    next_week_predictions = upcoming_predictions[
+        upcoming_predictions["week"] == next_week
+    ].copy()
+
+    next_week_predictions = next_week_predictions.sort_values(
+        ["gameday", "away_team", "home_team"]
+    )
+
+    section_header(f"Week {next_week} Upcoming Forecasts")
+
+    st.write(
+        "These are the next upcoming forecasted games from the 2026 season. "
+        "For the full schedule, projected records, standings, and playoff picture, use the Upcoming Forecasts page."
+    )
+
+    display_columns = [
+        "week",
+        "gameday",
+        "away_team",
+        "home_team",
+        "predicted_winner",
+        "home_win_probability",
+        "away_win_probability",
+        "predicted_margin_text",
+        "status",
+    ]
+
+    upcoming_table = next_week_predictions[display_columns].copy()
+
+    upcoming_table["home_win_probability"] = (
+        upcoming_table["home_win_probability"] * 100
+    ).round(1)
+
+    upcoming_table["away_win_probability"] = (
+        upcoming_table["away_win_probability"] * 100
+    ).round(1)
+
+    st.dataframe(
+        clean_column_names(upcoming_table),
+        use_container_width=True,
+        hide_index=True
+    )
+
+    st.markdown("### Upcoming Game Cards")
+
+    for _, row in next_week_predictions.iterrows():
+        home_team = row["home_team"]
+        away_team = row["away_team"]
+
+        home_logo = get_team_logo(home_team)
+        away_logo = get_team_logo(away_team)
+
+        home_name = get_team_name(home_team)
+        away_name = get_team_name(away_team)
+
+        home_color = get_team_primary_color(home_team)
+
+        home_prob = row["home_win_probability"] * 100
+        away_prob = row["away_win_probability"] * 100
+
+        with st.container(border=True):
+            st.markdown(
+                f"""
+                <div style="
+                    border-left: 8px solid {home_color};
+                    padding-left: 12px;
+                    margin-bottom: 8px;
+                ">
+                    <h3 style="margin-bottom: 0;">{away_team} at {home_team}</h3>
+                    <p style="margin-top: 4px; color: #CBD5E1;">
+                        {away_name} at {home_name}
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            col1, col2, col3 = st.columns([2, 2, 1])
+
+            with col1:
+                logo_col1, logo_col2 = st.columns(2)
+
+                with logo_col1:
+                    if away_logo:
+                        st.image(away_logo, width=80)
+                    st.write(f"**{away_team}**")
+                    st.write(f"Win Probability: **{away_prob:.1f}%**")
+
+                with logo_col2:
+                    if home_logo:
+                        st.image(home_logo, width=80)
+                    st.write(f"**{home_team}**")
+                    st.write(f"Win Probability: **{home_prob:.1f}%**")
+
+            with col2:
+                st.write(f"Predicted Winner: **{row['predicted_winner']}**")
+                st.write(f"Projected Margin: **{row['predicted_margin_text']}**")
+                st.write(f"Game Date: **{row['gameday'].date()}**")
+
+            with col3:
+                st.info(row["status"])
+
+except FileNotFoundError:
+    st.info(
+        "Upcoming forecast files are not available yet. Run `python src/predict_upcoming.py` to generate them."
+    )
+
 section_header("Dashboard Sections")
 
 col1, col2, col3 = st.columns(3)
@@ -294,7 +423,7 @@ try:
 
     st.divider()
 
-    section_header("2025 Model Evaluation Predictions")
+    section_header("2025 Historical Model Evaluation")
 
     # Week selector
     weeks = sorted(predictions["week"].unique())
@@ -333,69 +462,75 @@ try:
         hide_index=True
     )
 
-    st.markdown("### Prediction Cards")
+    st.write(
+    "This section shows how the model performed on completed 2025 test games. "
+    "It is used for model evaluation, while the section above shows upcoming 2026 forecasts."
+)
 
-    for _, row in week_predictions.iterrows():
-        result_text = "Correct" if row["correct_prediction"] else "Incorrect"
+    with st.expander("View 2025 evaluation game cards"):
+        st.markdown("### 2025 Evaluation Game Cards")
 
-        home_team = row["home_team"]
-        away_team = row["away_team"]
+        for _, row in week_predictions.iterrows():
+            result_text = "Correct" if row["correct_prediction"] else "Incorrect"
 
-        home_logo = get_team_logo(home_team)
-        away_logo = get_team_logo(away_team)
+            home_team = row["home_team"]
+            away_team = row["away_team"]
 
-        home_name = get_team_name(home_team)
-        away_name = get_team_name(away_team)
+            home_logo = get_team_logo(home_team)
+            away_logo = get_team_logo(away_team)
 
-        card_color = get_team_primary_color(home_team)
+            home_name = get_team_name(home_team)
+            away_name = get_team_name(away_team)
 
-        with st.container(border=True):
-            st.markdown(
-                f"""
-                <div style="
-                    border-left: 8px solid {card_color};
-                    padding-left: 12px;
-                    margin-bottom: 8px;
-                ">
-                    <h3 style="margin-bottom: 0;">{away_team} at {home_team}</h3>
-                    <p style="margin-top: 4px; color: #CBD5E1;">
-                        {away_name} at {home_name}
-                    </p>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+            card_color = get_team_primary_color(home_team)
 
-            col1, col2, col3 = st.columns([2, 2, 1])
-
-            with col1:
-                logo_col1, logo_col2 = st.columns(2)
-
-                with logo_col1:
-                    if away_logo:
-                        st.image(away_logo, width=80)
-                    st.write(f"**{away_team}**")
-                    st.write(f"{int(row['away_score'])} points")
-
-                with logo_col2:
-                    if home_logo:
-                        st.image(home_logo, width=80)
-                    st.write(f"**{home_team}**")
-                    st.write(f"{int(row['home_score'])} points")
-
-            with col2:
-                st.write(f"Predicted Winner: **{row['predicted_winner']}**")
-                st.write(f"Actual Winner: **{row['actual_winner']}**")
-                st.write(
-                    f"Home Win Probability: "
-                    f"**{row['home_win_probability_percent']}%**"
+            with st.container(border=True):
+                st.markdown(
+                    f"""
+                    <div style="
+                        border-left: 8px solid {card_color};
+                        padding-left: 12px;
+                        margin-bottom: 8px;
+                    ">
+                        <h3 style="margin-bottom: 0;">{away_team} at {home_team}</h3>
+                        <p style="margin-top: 4px; color: #CBD5E1;">
+                            {away_name} at {home_name}
+                        </p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
                 )
 
-            with col3:
-                if row["correct_prediction"]:
-                    st.success(result_text)
-                else:
-                    st.error(result_text)
+                col1, col2, col3 = st.columns([2, 2, 1])
+
+                with col1:
+                    logo_col1, logo_col2 = st.columns(2)
+
+                    with logo_col1:
+                        if away_logo:
+                            st.image(away_logo, width=80)
+                        st.write(f"**{away_team}**")
+                        st.write(f"{int(row['away_score'])} points")
+
+                    with logo_col2:
+                        if home_logo:
+                            st.image(home_logo, width=80)
+                        st.write(f"**{home_team}**")
+                        st.write(f"{int(row['home_score'])} points")
+
+                with col2:
+                    st.write(f"Predicted Winner: **{row['predicted_winner']}**")
+                    st.write(f"Actual Winner: **{row['actual_winner']}**")
+                    st.write(
+                        f"Home Win Probability: "
+                        f"**{row['home_win_probability_percent']}%**"
+                    )
+
+                with col3:
+                    if row["correct_prediction"]:
+                        st.success(result_text)
+                    else:
+                        st.error(result_text)
 
     
 

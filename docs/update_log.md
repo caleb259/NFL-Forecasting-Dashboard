@@ -172,6 +172,12 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Added largest projected margin game.
 - Added forecast last updated card.
 
+### Homepage Upcoming Week Forecasts
+
+- Updated the homepage to show the next upcoming forecast week.
+- Added upcoming game cards using 2026 forecast data.
+- Reframed the 2025 game cards as historical model evaluation.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.

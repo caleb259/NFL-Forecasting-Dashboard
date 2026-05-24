@@ -287,6 +287,7 @@ NFL-Forecasting-Dashboard/
 - Added visual cards for projected standings and playoff seeds
 - Added forecast methodology explanation to Upcoming Forecasts page
 - Added Forecast Hub summary cards to the homepage
+- Updated homepage to show next upcoming forecast week
 
 ## Current Limitations
 
