@@ -97,6 +97,143 @@ def get_forecast_hub_stats():
         "last_updated": metadata["last_updated"],
     }
 
+def get_forecast_storylines():
+    """Create plain-English forecast storylines from 2026 forecast data."""
+    upcoming_predictions = load_upcoming_predictions()
+    projected_records = load_projected_records()
+    super_bowl_projection = load_super_bowl_projection()
+
+    upcoming_predictions["predicted_margin_abs"] = (
+        upcoming_predictions["predicted_home_margin"].abs()
+    )
+
+    upcoming_predictions["game_label"] = (
+        upcoming_predictions["away_team"] + " at " + upcoming_predictions["home_team"]
+    )
+
+    projected_records["record_label"] = (
+        projected_records["projected_wins"].astype(int).astype(str)
+        + "-"
+        + projected_records["projected_losses"].astype(int).astype(str)
+    )
+
+    top_team = projected_records.sort_values(
+        ["projected_wins", "expected_wins"],
+        ascending=False
+    ).iloc[0]
+
+    closest_game = upcoming_predictions.sort_values(
+        "predicted_margin_abs",
+        ascending=True
+    ).iloc[0]
+
+    largest_margin_game = upcoming_predictions.sort_values(
+        "predicted_margin_abs",
+        ascending=False
+    ).iloc[0]
+
+    most_confident_game = upcoming_predictions.sort_values(
+        "winner_win_probability",
+        ascending=False
+    ).iloc[0]
+
+    upset_games = upcoming_predictions[
+        upcoming_predictions["upset_alert"] == True
+    ].copy()
+
+    if len(upset_games) > 0:
+        top_upset = upset_games.sort_values(
+            "winner_win_probability",
+            ascending=False
+        ).iloc[0]
+
+        upset_story = (
+            f"{top_upset['predicted_winner']} is flagged as an upset pick in "
+            f"{top_upset['game_label']}."
+        )
+    else:
+        upset_story = "No major upset alerts are currently flagged in the forecast."
+
+    division_summary = (
+        projected_records.groupby("division")
+        .agg(
+            top_projected_wins=("projected_wins", "max"),
+            bottom_projected_wins=("projected_wins", "min"),
+            avg_expected_wins=("expected_wins", "mean")
+        )
+        .reset_index()
+    )
+
+    division_summary["win_gap"] = (
+        division_summary["top_projected_wins"]
+        - division_summary["bottom_projected_wins"]
+    )
+
+    most_competitive_division = division_summary.sort_values(
+        ["win_gap", "avg_expected_wins"],
+        ascending=[True, False]
+    ).iloc[0]
+
+    storylines = [
+        {
+            "title": "Projected Super Bowl Champion",
+            "text": (
+                f"{super_bowl_projection['super_bowl_champion']} is currently projected "
+                f"to win the Super Bowl over a projected matchup of "
+                f"{super_bowl_projection['afc_champion']} vs {super_bowl_projection['nfc_champion']}."
+            ),
+        },
+        {
+            "title": "Top Projected Regular-Season Team",
+            "text": (
+                f"{top_team['team']} has the best projected record at "
+                f"{top_team['record_label']}, with an expected record of "
+                f"{top_team['expected_wins']}-{top_team['expected_losses']}."
+            ),
+        },
+        {
+            "title": "Closest Projected Matchup",
+            "text": (
+                f"{closest_game['game_label']} is the closest projected game, with a projected margin of "
+                f"{closest_game['predicted_margin_text']}."
+            ),
+        },
+        {
+            "title": "Largest Projected Margin",
+            "text": (
+                f"{largest_margin_game['game_label']} has the largest projected margin, with "
+                f"{largest_margin_game['predicted_margin_text']}."
+            ),
+        },
+        {
+            "title": "Most Confident Forecast",
+            "text": (
+                f"The model is most confident in {most_confident_game['predicted_winner']} "
+                f"winning {most_confident_game['game_label']}, with a winner win probability of "
+                f"{most_confident_game['winner_win_probability']:.1%}."
+            ),
+        },
+        {
+            "title": "Most Competitive Division",
+            "text": (
+                f"{most_competitive_division['division']} currently looks like the most competitive division, "
+                f"with only a {int(most_competitive_division['win_gap'])}-win gap between its top and bottom projected teams."
+            ),
+        },
+        {
+            "title": "Upset Watch",
+            "text": upset_story,
+        },
+    ]
+
+    return storylines
+
+def render_storyline_card(number, title, text):
+    """Render one forecast storyline card."""
+    with st.container(border=True):
+        st.markdown(f"### {number}. {title}")
+        st.write(text)
+
 
 def render_forecast_hub_card(title, main_value, subtext=None, team=None):
     """Render one forecast hub card."""
@@ -235,6 +372,30 @@ try:
 except FileNotFoundError:
     st.info(
         "Forecast hub data is not available yet. Run `python src/predict_upcoming.py` to generate forecast files."
+    )
+
+try:
+    storylines = get_forecast_storylines()
+
+    section_header("Top 2026 Forecast Storylines")
+
+    st.write(
+        "These storylines summarize the biggest takeaways from the current 2026 forecast."
+    )
+
+    story_col1, story_col2 = st.columns(2)
+
+    for index, storyline in enumerate(storylines, start=1):
+        with story_col1 if index % 2 == 1 else story_col2:
+            render_storyline_card(
+                index,
+                storyline["title"],
+                storyline["text"]
+            )
+
+except FileNotFoundError:
+    st.info(
+        "Forecast storylines are not available yet. Run `python src/predict_upcoming.py` to generate forecast files."
     )
 
 try:

@@ -193,6 +193,12 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Added upset alert labels for games where the predicted winner has fewer projected wins than the opponent.
 - Updated Home, Upcoming Forecasts, and Team Dashboard pages to show confidence and upset alerts.
 
+### Top Forecast Storylines
+
+- Added a Top 2026 Forecast Storylines section to the homepage.
+- Generated plain-English forecast takeaways from projected records, upcoming predictions, and playoff projections.
+- Added storylines for projected champion, top projected team, closest game, largest projected margin, most confident forecast, most competitive division, and upset watch.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.

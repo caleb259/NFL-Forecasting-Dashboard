@@ -52,6 +52,8 @@ The homepage shows:
 - Top projected team
 - Closest projected game
 - Largest projected margin game
+- Top 2026 forecast storylines
+- Plain-English takeaways from the model forecast
 
 ### Game Breakdown
 
