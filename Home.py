@@ -31,6 +31,86 @@ def load_forecast_metadata():
 
     with open(filepath, "r") as file:
         return json.load(file)
+    
+@st.cache_data
+def load_upcoming_predictions():
+    """Load upcoming 2026 predictions."""
+    filepath = "data/predictions/upcoming_2026_predictions.csv"
+    return pd.read_csv(filepath)
+
+
+@st.cache_data
+def load_projected_records():
+    """Load projected 2026 records."""
+    filepath = "data/predictions/projected_2026_records.csv"
+    return pd.read_csv(filepath)
+
+
+@st.cache_data
+def load_super_bowl_projection():
+    """Load projected Super Bowl summary."""
+    filepath = "data/predictions/projected_super_bowl.json"
+
+    with open(filepath, "r") as file:
+        return json.load(file)
+
+def get_forecast_hub_stats():
+    """Create homepage forecast hub stats."""
+    upcoming_predictions = load_upcoming_predictions()
+    projected_records = load_projected_records()
+    super_bowl_projection = load_super_bowl_projection()
+    metadata = load_forecast_metadata()
+
+    upcoming_predictions["predicted_margin_abs"] = (
+        upcoming_predictions["predicted_home_margin"].abs()
+    )
+
+    upcoming_predictions["game_label"] = (
+        upcoming_predictions["away_team"] + " at " + upcoming_predictions["home_team"]
+    )
+
+    closest_game = upcoming_predictions.sort_values(
+        "predicted_margin_abs",
+        ascending=True
+    ).iloc[0]
+
+    largest_margin_game = upcoming_predictions.sort_values(
+        "predicted_margin_abs",
+        ascending=False
+    ).iloc[0]
+
+    top_projected_team = projected_records.sort_values(
+        ["projected_wins", "expected_wins"],
+        ascending=False
+    ).iloc[0]
+
+    return {
+        "super_bowl_champion": super_bowl_projection["super_bowl_champion"],
+        "afc_champion": super_bowl_projection["afc_champion"],
+        "nfc_champion": super_bowl_projection["nfc_champion"],
+        "top_projected_team": top_projected_team["team"],
+        "top_projected_record": f"{int(top_projected_team['projected_wins'])}-{int(top_projected_team['projected_losses'])}",
+        "closest_game": closest_game["game_label"],
+        "closest_game_margin": closest_game["predicted_margin_text"],
+        "largest_margin_game": largest_margin_game["game_label"],
+        "largest_margin": largest_margin_game["predicted_margin_text"],
+        "last_updated": metadata["last_updated"],
+    }
+
+
+def render_forecast_hub_card(title, main_value, subtext=None, team=None):
+    """Render one forecast hub card."""
+    team_logo = get_team_logo(team) if team else None
+
+    with st.container(border=True):
+        if team_logo:
+            st.image(team_logo, width=70)
+
+        st.markdown(f"**{title}**")
+        st.markdown(f"### {main_value}")
+
+        if subtext:
+            st.caption(subtext)
 
 
 main_header(
@@ -91,6 +171,58 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+try:
+    hub_stats = get_forecast_hub_stats()
+
+    section_header("2026 Forecast Hub")
+
+    hub_col1, hub_col2, hub_col3, hub_col4, hub_col5 = st.columns(5)
+
+    with hub_col1:
+        render_forecast_hub_card(
+            title="Projected Champion",
+            main_value=hub_stats["super_bowl_champion"],
+            subtext=(
+                f"Super Bowl projection: "
+                f"{hub_stats['afc_champion']} vs {hub_stats['nfc_champion']}"
+            ),
+            team=hub_stats["super_bowl_champion"],
+        )
+
+    with hub_col2:
+        render_forecast_hub_card(
+            title="Top Projected Team",
+            main_value=hub_stats["top_projected_team"],
+            subtext=f"Projected record: {hub_stats['top_projected_record']}",
+            team=hub_stats["top_projected_team"],
+        )
+
+    with hub_col3:
+        render_forecast_hub_card(
+            title="Closest Game",
+            main_value=hub_stats["closest_game"],
+            subtext=f"Projected margin: {hub_stats['closest_game_margin']}",
+        )
+
+    with hub_col4:
+        render_forecast_hub_card(
+            title="Largest Projected Margin",
+            main_value=hub_stats["largest_margin_game"],
+            subtext=f"Projected margin: {hub_stats['largest_margin']}",
+        )
+
+    with hub_col5:
+        render_forecast_hub_card(
+            title="Forecast Updated",
+            main_value="Current Forecast",
+            subtext=hub_stats["last_updated"],
+        )
+
+except FileNotFoundError:
+    st.info(
+        "Forecast hub data is not available yet. Run `python src/predict_upcoming.py` to generate forecast files."
+    )
 
 section_header("Dashboard Sections")
 

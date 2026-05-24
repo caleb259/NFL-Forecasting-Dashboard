@@ -286,6 +286,7 @@ NFL-Forecasting-Dashboard/
 - Added visual playoff bracket layout
 - Added visual cards for projected standings and playoff seeds
 - Added forecast methodology explanation to Upcoming Forecasts page
+- Added Forecast Hub summary cards to the homepage
 
 ## Current Limitations
 

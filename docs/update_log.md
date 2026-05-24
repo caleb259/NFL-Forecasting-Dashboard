@@ -163,6 +163,15 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Added a methodology card to the Upcoming Forecasts page.
 - Explained win probabilities, projected margins, projected records, expected records, and playoff bracket logic.
 
+### Forecast Hub Homepage
+
+- Added forecast hub cards to the homepage.
+- Added projected Super Bowl champion summary.
+- Added top projected team summary.
+- Added closest projected game.
+- Added largest projected margin game.
+- Added forecast last updated card.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.

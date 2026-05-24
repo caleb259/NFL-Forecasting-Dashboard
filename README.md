@@ -47,6 +47,11 @@ The homepage shows:
 - Weekly model evaluation prediction table
 - Prediction cards for each game
 - Model details and features used
+- Forecast Hub summary cards
+- Projected Super Bowl champion
+- Top projected team
+- Closest projected game
+- Largest projected margin game
 
 ### Game Breakdown
 
