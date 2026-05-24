@@ -186,6 +186,13 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Added full 2026 schedule forecast table for selected teams.
 - Moved 2025 team results into a historical model evaluation section.
 
+### Forecast Confidence and Upset Alerts
+
+- Added winner win probability to upcoming forecasts.
+- Added confidence labels for forecasted games.
+- Added upset alert labels for games where the predicted winner has fewer projected wins than the opponent.
+- Updated Home, Upcoming Forecasts, and Team Dashboard pages to show confidence and upset alerts.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.

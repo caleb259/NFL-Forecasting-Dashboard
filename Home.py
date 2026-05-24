@@ -267,20 +267,17 @@ try:
         "away_team",
         "home_team",
         "predicted_winner",
-        "home_win_probability",
-        "away_win_probability",
+        "winner_win_probability",
+        "confidence_level",
+        "upset_alert_label",
         "predicted_margin_text",
         "status",
     ]
 
     upcoming_table = next_week_predictions[display_columns].copy()
 
-    upcoming_table["home_win_probability"] = (
-        upcoming_table["home_win_probability"] * 100
-    ).round(1)
-
-    upcoming_table["away_win_probability"] = (
-        upcoming_table["away_win_probability"] * 100
+    upcoming_table["winner_win_probability"] = (
+        upcoming_table["winner_win_probability"] * 100
     ).round(1)
 
     st.dataframe(
@@ -342,8 +339,12 @@ try:
 
             with col2:
                 st.write(f"Predicted Winner: **{row['predicted_winner']}**")
+                st.write(f"Confidence: **{row['confidence_level']}**")
                 st.write(f"Projected Margin: **{row['predicted_margin_text']}**")
                 st.write(f"Game Date: **{row['gameday'].date()}**")
+
+                if row.get("upset_alert", False):
+                    st.warning("Upset Alert")
 
             with col3:
                 st.info(row["status"])

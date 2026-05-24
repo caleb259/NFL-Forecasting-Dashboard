@@ -446,6 +446,29 @@ def create_predictions(upcoming_features, win_model, margin_model):
         axis=1,
     )
 
+    predictions["winner_win_probability"] = predictions.apply(
+    lambda row: row["home_win_probability"]
+    if row["predicted_winner"] == row["home_team"]
+    else row["away_win_probability"],
+    axis=1,
+    )
+
+
+    def get_confidence_level(probability):
+        if probability >= 0.65:
+            return "High Confidence"
+        elif probability >= 0.57:
+            return "Medium Confidence"
+        elif probability >= 0.53:
+            return "Low Confidence"
+        else:
+            return "Toss-Up"
+
+
+    predictions["confidence_level"] = predictions["winner_win_probability"].apply(
+        get_confidence_level
+    )
+
     predictions["predicted_margin_abs"] = (
         predictions["predicted_home_margin"].abs().round(1)
     )
@@ -460,6 +483,7 @@ def create_predictions(upcoming_features, win_model, margin_model):
     )
 
     predictions["status"] = "Pending"
+    predictions["upset_alert"] = False
 
     display_cols = [
         "season",
@@ -470,6 +494,9 @@ def create_predictions(upcoming_features, win_model, margin_model):
         "home_team",
         "away_team",
         "predicted_winner",
+        "winner_win_probability",
+        "confidence_level",
+        "upset_alert",
         "home_win_probability",
         "away_win_probability",
         "predicted_home_margin",
@@ -600,6 +627,39 @@ def save_forecast_metadata(predictions):
 
     return metadata
 
+def add_upset_alerts(predictions, projected_records):
+    """
+    Add upset alert labels.
+
+    An upset alert is marked True when the predicted winner has fewer
+    projected wins than the opponent.
+    """
+    predictions = predictions.copy()
+
+    projected_wins = dict(
+        zip(projected_records["team"], projected_records["projected_wins"])
+    )
+
+    def is_upset(row):
+        home_team = row["home_team"]
+        away_team = row["away_team"]
+        predicted_winner = row["predicted_winner"]
+
+        predicted_loser = away_team if predicted_winner == home_team else home_team
+
+        winner_projected_wins = projected_wins.get(predicted_winner, 0)
+        loser_projected_wins = projected_wins.get(predicted_loser, 0)
+
+        return winner_projected_wins < loser_projected_wins
+
+    predictions["upset_alert"] = predictions.apply(is_upset, axis=1)
+
+    predictions["upset_alert_label"] = predictions["upset_alert"].apply(
+        lambda x: "Upset Alert" if x else "No Upset Alert"
+    )
+
+    return predictions
+
 
 def main():
     schedules = load_schedules()
@@ -668,6 +728,8 @@ def main():
     projected_records["division"] = projected_records["team"].apply(
         get_team_division
     )
+
+    predictions = add_upset_alerts(predictions, projected_records)
 
     print("Creating projected playoff picture...")
     playoff_seeds, first_teams_out, playoff_games, super_bowl_summary = (

@@ -289,6 +289,7 @@ NFL-Forecasting-Dashboard/
 - Added Forecast Hub summary cards to the homepage
 - Updated homepage to show next upcoming forecast week
 - Added 2026 team forecast outlook to Team Dashboard
+- Added confidence labels and upset alerts to game forecasts
 
 ## Current Limitations
 

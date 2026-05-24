@@ -135,6 +135,8 @@ The Upcoming Forecasts page shows:
 - Projected playoff seeds
 - Projected playoff bracket
 - Projected Super Bowl matchup and champion
+- Confidence labels for each forecast
+- Upset alerts for selected matchups
 
 ## Dashboard Preview
 

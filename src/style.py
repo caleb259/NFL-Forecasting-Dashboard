@@ -230,6 +230,10 @@ def clean_column_names(df):
         "round": "Round",
         "home_seed": "Home Seed",
         "away_seed": "Away Seed",
+        "winner_win_probability": "Winner Win Probability",
+        "confidence_level": "Confidence Level",
+        "upset_alert": "Upset Alert",
+        "upset_alert_label": "Upset Alert",
     }
 
     display_df = df.copy()

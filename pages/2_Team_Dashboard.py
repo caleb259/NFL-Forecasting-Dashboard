@@ -190,8 +190,12 @@ def render_2026_team_game_card(row, selected_team, selected_team_logo, selected_
 
         with col2:
             st.write(f"Predicted Winner: **{row['predicted_winner']}**")
+            st.write(f"Confidence: **{row['confidence_level']}**")
             st.write(f"Projected Margin: **{row['predicted_margin_text']}**")
             st.write(f"Game Date: **{row['gameday'].date()}**")
+
+            if row.get("upset_alert", False):
+                st.warning("Upset Alert")
 
         with col3:
             if row["projected_result"] == "Projected Win":
@@ -446,6 +450,8 @@ try:
             "opponent",
             "predicted_winner",
             "team_win_probability_percent",
+            "confidence_level",
+            "upset_alert_label",
             "predicted_margin_text",
             "projected_result",
             "status",

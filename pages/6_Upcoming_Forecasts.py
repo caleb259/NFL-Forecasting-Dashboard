@@ -420,6 +420,10 @@ try:
         week_predictions["away_win_probability"] * 100
     ).round(1)
 
+    week_predictions["winner_win_probability_percent"] = (
+        week_predictions["winner_win_probability"] * 100
+    ).round(1)
+
     display_table = week_predictions[
         [
             "week",
@@ -427,8 +431,9 @@ try:
             "away_team",
             "home_team",
             "predicted_winner",
-            "home_win_probability_percent",
-            "away_win_probability_percent",
+            "winner_win_probability_percent",
+            "confidence_level",
+            "upset_alert_label",
             "predicted_margin_text",
             "status",
         ]
@@ -499,8 +504,12 @@ try:
 
             with col2:
                 st.write(f"Predicted Winner: **{row['predicted_winner']}**")
+                st.write(f"Confidence: **{row['confidence_level']}**")
                 st.write(f"Projected Margin: **{row['predicted_margin_text']}**")
                 st.write(f"Game Date: **{row['gameday'].date()}**")
+
+                if row.get("upset_alert", False):
+                    st.warning("Upset Alert")
 
             with col3:
                 st.info(row["status"])
