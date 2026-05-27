@@ -168,6 +168,9 @@ The What If Simulator page allows users to:
 - Recalculate adjusted playoff seeds
 - View adjusted first teams out
 - Compare adjusted playoff status after changed outcomes
+- Recalculate adjusted playoff bracket
+- View adjusted AFC and NFC champions
+- View adjusted Super Bowl matchup and champion
 
 ## Dashboard Preview
 

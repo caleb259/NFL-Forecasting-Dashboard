@@ -295,6 +295,7 @@ NFL-Forecasting-Dashboard/
 - Added team-level What If Simulator page
 - Added league-wide adjusted standings to What If Simulator
 - Added adjusted playoff seeds to What If Simulator
+- Added adjusted playoff bracket and Super Bowl champion to What If Simulator
 
 ## Current Limitations
 

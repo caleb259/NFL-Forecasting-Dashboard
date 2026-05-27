@@ -227,6 +227,14 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Added adjusted first teams out.
 - Added adjusted playoff status for the selected team.
 
+### What If Simulator Adjusted Playoff Bracket
+
+- Updated the What If Simulator to create an adjusted playoff bracket from adjusted playoff seeds.
+- Added adjusted AFC and NFC playoff brackets.
+- Added adjusted conference champions.
+- Added adjusted Super Bowl matchup and champion.
+- Added detailed adjusted playoff game table.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.

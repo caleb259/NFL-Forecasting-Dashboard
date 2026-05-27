@@ -246,6 +246,11 @@ def clean_column_names(df):
         "adjusted_seed": "Adjusted Seed",
         "adjusted_rank_out": "Adjusted Rank",
         "seed_type": "Seed Type",
+        "winner": "Winner",
+        "loser": "Loser",
+        "round": "Round",
+        "home_seed": "Home Seed",
+        "away_seed": "Away Seed",
     }
 
     display_df = df.copy()

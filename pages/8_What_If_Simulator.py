@@ -435,6 +435,416 @@ def get_adjusted_playoff_status(selected_team, adjusted_playoff_seeds, adjusted_
         "detail": "Not currently projected in playoff race",
     }
 
+def get_adjusted_team_strength(team, adjusted_standings):
+    """
+    Get a simple adjusted team strength value.
+
+    This uses adjusted wins first and expected wins second.
+    """
+    team_row = adjusted_standings[adjusted_standings["team"] == team]
+
+    if len(team_row) == 0:
+        return 0
+
+    row = team_row.iloc[0]
+
+    return float(row["adjusted_wins"]) + (float(row["expected_wins"]) / 100)
+
+
+def predict_adjusted_playoff_game(home_team, away_team, adjusted_standings):
+    """
+    Predict an adjusted playoff game winner.
+
+    The higher adjusted team strength wins.
+    If tied, the home team wins.
+    """
+    home_strength = get_adjusted_team_strength(home_team, adjusted_standings)
+    away_strength = get_adjusted_team_strength(away_team, adjusted_standings)
+
+    if home_strength >= away_strength:
+        winner = home_team
+        loser = away_team
+    else:
+        winner = away_team
+        loser = home_team
+
+    return {
+        "home_team": home_team,
+        "away_team": away_team,
+        "home_strength": home_strength,
+        "away_strength": away_strength,
+        "winner": winner,
+        "loser": loser,
+    }
+
+
+def simulate_adjusted_conference_playoffs(
+    conference,
+    adjusted_playoff_seeds,
+    adjusted_standings
+):
+    """
+    Simulate an adjusted playoff bracket for one conference.
+
+    Wild Card:
+        2 hosts 7
+        3 hosts 6
+        4 hosts 5
+        1 gets a bye
+
+    Divisional:
+        1 hosts lowest remaining seed
+        Other two remaining teams play each other
+
+    Conference Championship:
+        Highest remaining seed hosts lowest remaining seed
+    """
+    seeds = adjusted_playoff_seeds[
+        adjusted_playoff_seeds["conference"] == conference
+    ].copy()
+
+    seeds = seeds.sort_values("adjusted_seed").reset_index(drop=True)
+
+    seed_to_team = dict(zip(seeds["adjusted_seed"], seeds["team"]))
+    team_to_seed = dict(zip(seeds["team"], seeds["adjusted_seed"]))
+
+    games = []
+
+    # Wild Card Round
+    wild_card_matchups = [
+        (2, 7),
+        (3, 6),
+        (4, 5),
+    ]
+
+    wild_card_winners = [seed_to_team[1]]
+
+    for home_seed, away_seed in wild_card_matchups:
+        home_team = seed_to_team[home_seed]
+        away_team = seed_to_team[away_seed]
+
+        result = predict_adjusted_playoff_game(
+            home_team,
+            away_team,
+            adjusted_standings,
+        )
+
+        games.append(
+            {
+                "conference": conference,
+                "round": "Wild Card",
+                "home_seed": home_seed,
+                "away_seed": away_seed,
+                "home_team": home_team,
+                "away_team": away_team,
+                "winner": result["winner"],
+                "loser": result["loser"],
+            }
+        )
+
+        wild_card_winners.append(result["winner"])
+
+    # Divisional Round
+    remaining_teams = wild_card_winners.copy()
+
+    remaining_teams_sorted = sorted(
+        remaining_teams,
+        key=lambda team: team_to_seed[team],
+    )
+
+    one_seed_team = seed_to_team[1]
+
+    other_remaining = [
+        team for team in remaining_teams_sorted if team != one_seed_team
+    ]
+
+    lowest_remaining = sorted(
+        other_remaining,
+        key=lambda team: team_to_seed[team],
+        reverse=True,
+    )[0]
+
+    divisional_game_1_home = one_seed_team
+    divisional_game_1_away = lowest_remaining
+
+    result_1 = predict_adjusted_playoff_game(
+        divisional_game_1_home,
+        divisional_game_1_away,
+        adjusted_standings,
+    )
+
+    games.append(
+        {
+            "conference": conference,
+            "round": "Divisional",
+            "home_seed": team_to_seed[divisional_game_1_home],
+            "away_seed": team_to_seed[divisional_game_1_away],
+            "home_team": divisional_game_1_home,
+            "away_team": divisional_game_1_away,
+            "winner": result_1["winner"],
+            "loser": result_1["loser"],
+        }
+    )
+
+    remaining_for_second_game = [
+        team
+        for team in other_remaining
+        if team != lowest_remaining
+    ]
+
+    remaining_for_second_game = sorted(
+        remaining_for_second_game,
+        key=lambda team: team_to_seed[team],
+    )
+
+    divisional_game_2_home = remaining_for_second_game[0]
+    divisional_game_2_away = remaining_for_second_game[1]
+
+    result_2 = predict_adjusted_playoff_game(
+        divisional_game_2_home,
+        divisional_game_2_away,
+        adjusted_standings,
+    )
+
+    games.append(
+        {
+            "conference": conference,
+            "round": "Divisional",
+            "home_seed": team_to_seed[divisional_game_2_home],
+            "away_seed": team_to_seed[divisional_game_2_away],
+            "home_team": divisional_game_2_home,
+            "away_team": divisional_game_2_away,
+            "winner": result_2["winner"],
+            "loser": result_2["loser"],
+        }
+    )
+
+    # Conference Championship
+    championship_teams = [result_1["winner"], result_2["winner"]]
+
+    championship_teams = sorted(
+        championship_teams,
+        key=lambda team: team_to_seed[team],
+    )
+
+    championship_home = championship_teams[0]
+    championship_away = championship_teams[1]
+
+    championship_result = predict_adjusted_playoff_game(
+        championship_home,
+        championship_away,
+        adjusted_standings,
+    )
+
+    games.append(
+        {
+            "conference": conference,
+            "round": "Conference Championship",
+            "home_seed": team_to_seed[championship_home],
+            "away_seed": team_to_seed[championship_away],
+            "home_team": championship_home,
+            "away_team": championship_away,
+            "winner": championship_result["winner"],
+            "loser": championship_result["loser"],
+        }
+    )
+
+    conference_champion = championship_result["winner"]
+
+    return games, conference_champion
+
+
+def simulate_adjusted_full_playoffs(adjusted_playoff_seeds, adjusted_standings):
+    """
+    Simulate the full adjusted playoffs and Super Bowl.
+    """
+    afc_games, afc_champion = simulate_adjusted_conference_playoffs(
+        "AFC",
+        adjusted_playoff_seeds,
+        adjusted_standings,
+    )
+
+    nfc_games, nfc_champion = simulate_adjusted_conference_playoffs(
+        "NFC",
+        adjusted_playoff_seeds,
+        adjusted_standings,
+    )
+
+    adjusted_playoff_games = afc_games + nfc_games
+
+    super_bowl_result = predict_adjusted_playoff_game(
+        afc_champion,
+        nfc_champion,
+        adjusted_standings,
+    )
+
+    adjusted_playoff_games.append(
+        {
+            "conference": "NFL",
+            "round": "Super Bowl",
+            "home_seed": None,
+            "away_seed": None,
+            "home_team": afc_champion,
+            "away_team": nfc_champion,
+            "winner": super_bowl_result["winner"],
+            "loser": super_bowl_result["loser"],
+        }
+    )
+
+    adjusted_playoff_games_df = pd.DataFrame(adjusted_playoff_games)
+
+    adjusted_super_bowl_summary = {
+        "afc_champion": afc_champion,
+        "nfc_champion": nfc_champion,
+        "super_bowl_matchup": f"{afc_champion} vs {nfc_champion}",
+        "super_bowl_champion": super_bowl_result["winner"],
+        "super_bowl_runner_up": super_bowl_result["loser"],
+    }
+
+    return adjusted_playoff_games_df, adjusted_super_bowl_summary
+
+def get_adjusted_seed_label(team, adjusted_playoff_seeds):
+    """
+    Return adjusted seed label for a team.
+    """
+    team_seed = adjusted_playoff_seeds[
+        adjusted_playoff_seeds["team"] == team
+    ]
+
+    if len(team_seed) == 0:
+        return ""
+
+    seed = int(team_seed.iloc[0]["adjusted_seed"])
+
+    return f"#{seed}"
+
+
+def render_adjusted_bracket_game(row, adjusted_playoff_seeds):
+    """
+    Render one adjusted playoff game card.
+    """
+    home_team = row["home_team"]
+    away_team = row["away_team"]
+    winner = row["winner"]
+
+    home_seed = get_adjusted_seed_label(home_team, adjusted_playoff_seeds)
+    away_seed = get_adjusted_seed_label(away_team, adjusted_playoff_seeds)
+
+    home_logo = get_team_logo(home_team)
+    away_logo = get_team_logo(away_team)
+
+    if row["round"] == "Super Bowl":
+        matchup_label = f"{home_team} vs {away_team}"
+    else:
+        matchup_label = f"{away_team} at {home_team}"
+
+    with st.container(border=True):
+        st.caption(f"{row['conference']} • {row['round']}")
+        st.subheader(matchup_label)
+
+        team_col1, vs_col, team_col2 = st.columns([2, 1, 2])
+
+        with team_col1:
+            if away_logo:
+                st.image(away_logo, width=60)
+            st.write("Away Team")
+            st.write(f"**{away_seed} {away_team}**")
+
+        with vs_col:
+            st.markdown(
+                "<h3 style='text-align: center; margin-top: 35px;'>VS</h3>",
+                unsafe_allow_html=True
+            )
+
+        with team_col2:
+            if home_logo:
+                st.image(home_logo, width=60)
+            st.write("Home Team")
+            st.write(f"**{home_seed} {home_team}**")
+
+        st.success(f"Adjusted Winner: {winner}")
+
+
+def render_adjusted_conference_bracket(
+    conference,
+    adjusted_playoff_games,
+    adjusted_playoff_seeds
+):
+    """
+    Render adjusted conference playoff bracket.
+    """
+    conference_games = adjusted_playoff_games[
+        adjusted_playoff_games["conference"] == conference
+    ].copy()
+
+    st.markdown(f"### {conference} Adjusted Bracket")
+
+    round_order = [
+        "Wild Card",
+        "Divisional",
+        "Conference Championship",
+    ]
+
+    cols = st.columns(3)
+
+    for col, playoff_round in zip(cols, round_order):
+        with col:
+            st.markdown(f"#### {playoff_round}")
+
+            round_games = conference_games[
+                conference_games["round"] == playoff_round
+            ].copy()
+
+            if len(round_games) == 0:
+                st.info("No games available.")
+            else:
+                for _, row in round_games.iterrows():
+                    render_adjusted_bracket_game(
+                        row,
+                        adjusted_playoff_seeds
+                    )
+
+
+def render_adjusted_super_bowl(
+    adjusted_playoff_games,
+    adjusted_playoff_seeds,
+    adjusted_super_bowl_summary
+):
+    """
+    Render adjusted Super Bowl projection.
+    """
+    super_bowl_game = adjusted_playoff_games[
+        adjusted_playoff_games["round"] == "Super Bowl"
+    ].copy()
+
+    st.markdown("### Adjusted Super Bowl")
+
+    if len(super_bowl_game) > 0:
+        render_adjusted_bracket_game(
+            super_bowl_game.iloc[0],
+            adjusted_playoff_seeds
+        )
+
+    sb_col1, sb_col2, sb_col3 = st.columns(3)
+
+    with sb_col1:
+        st.metric(
+            "Adjusted AFC Champion",
+            adjusted_super_bowl_summary["afc_champion"]
+        )
+
+    with sb_col2:
+        st.metric(
+            "Adjusted NFC Champion",
+            adjusted_super_bowl_summary["nfc_champion"]
+        )
+
+    with sb_col3:
+        st.metric(
+            "Adjusted Champion",
+            adjusted_super_bowl_summary["super_bowl_champion"]
+        )
+
 
 def render_team_header(selected_team):
     """Render selected team header."""
@@ -606,6 +1016,13 @@ try:
         selected_team,
         adjusted_playoff_seeds,
         adjusted_first_out
+    )
+
+    adjusted_playoff_games, adjusted_super_bowl_summary = (
+        simulate_adjusted_full_playoffs(
+            adjusted_playoff_seeds,
+            adjusted_standings
+        )
     )
 
     st.divider()
@@ -893,6 +1310,47 @@ try:
 
     st.divider()
 
+    section_header("Adjusted Playoff Bracket")
+
+    st.write(
+        "This bracket uses the adjusted playoff seeds from your scenario and projects winners through the Super Bowl."
+    )
+
+    render_adjusted_conference_bracket(
+        "AFC",
+        adjusted_playoff_games,
+        adjusted_playoff_seeds
+    )
+
+    st.divider()
+
+    render_adjusted_conference_bracket(
+        "NFC",
+        adjusted_playoff_games,
+        adjusted_playoff_seeds
+    )
+
+    st.divider()
+
+    render_adjusted_super_bowl(
+        adjusted_playoff_games,
+        adjusted_playoff_seeds,
+        adjusted_super_bowl_summary
+    )
+
+    st.success(
+        f"Adjusted Super Bowl Champion: {adjusted_super_bowl_summary['super_bowl_champion']}"
+    )
+
+    with st.expander("View adjusted playoff game table"):
+        st.dataframe(
+            clean_column_names(adjusted_playoff_games),
+            use_container_width=True,
+            hide_index=True
+        )
+
+    st.divider()
+
     section_header("Adjusted Schedule View")
 
     adjusted_rows = []
@@ -937,13 +1395,12 @@ try:
 
     st.write(
         "The simulator recalculates adjusted league records, division standings, conference standings, "
-        "playoff seeds, and first teams out. This helps show how a few changed outcomes could affect "
-        "the playoff picture."
+        "playoff seeds, first teams out, playoff bracket, conference champions, and projected Super Bowl champion."
     )
 
     st.write(
-        "A future version can also simulate the adjusted playoff bracket and projected Super Bowl champion "
-        "from the adjusted playoff seeds."
+        "This is still a deterministic simulator. It does not run thousands of simulations or assign playoff odds yet. "
+        "A future version could add Monte Carlo simulation to estimate playoff and Super Bowl probabilities."
     )
 
 except FileNotFoundError:
