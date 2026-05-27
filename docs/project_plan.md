@@ -294,6 +294,7 @@ NFL-Forecasting-Dashboard/
 - Created dedicated Playoff Predictor dashboard page
 - Added team-level What If Simulator page
 - Added league-wide adjusted standings to What If Simulator
+- Added adjusted playoff seeds to What If Simulator
 
 ## Current Limitations
 

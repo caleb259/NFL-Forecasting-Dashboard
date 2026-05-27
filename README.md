@@ -165,6 +165,9 @@ The What If Simulator page allows users to:
 - View adjusted division standings
 - View adjusted conference standings
 - See which teams are affected by scenario changes
+- Recalculate adjusted playoff seeds
+- View adjusted first teams out
+- Compare adjusted playoff status after changed outcomes
 
 ## Dashboard Preview
 

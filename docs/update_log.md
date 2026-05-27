@@ -220,6 +220,13 @@ This document tracks major progress updates for the Fourth & Forecast NFL predic
 - Added adjusted division standings.
 - Added adjusted conference standings.
 
+### What If Simulator Adjusted Playoff Picture
+
+- Updated the What If Simulator to recalculate playoff seeds from adjusted standings.
+- Added adjusted AFC and NFC playoff seeds.
+- Added adjusted first teams out.
+- Added adjusted playoff status for the selected team.
+
 ### Reusable Scripts
 
 - Created `src/train_model.py`.

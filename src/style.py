@@ -243,6 +243,9 @@ def clean_column_names(df):
         "adjusted_conference_rank": "Adjusted Conference Rank",
         "original_result": "Original Result",
         "adjusted_result": "Adjusted Result",
+        "adjusted_seed": "Adjusted Seed",
+        "adjusted_rank_out": "Adjusted Rank",
+        "seed_type": "Seed Type",
     }
 
     display_df = df.copy()

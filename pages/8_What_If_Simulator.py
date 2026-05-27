@@ -303,6 +303,138 @@ def get_most_affected_teams(adjusted_standings):
 
     return affected
 
+def create_adjusted_playoff_seeds(adjusted_standings):
+    """
+    Create adjusted AFC and NFC playoff seeds from adjusted standings.
+
+    Seeds 1-4:
+        Division winners sorted by adjusted wins and expected wins.
+
+    Seeds 5-7:
+        Wild card teams sorted by adjusted wins and expected wins.
+    """
+    standings = adjusted_standings.copy()
+
+    all_seed_rows = []
+
+    for conference in ["AFC", "NFC"]:
+        conference_standings = standings[
+            standings["conference"] == conference
+        ].copy()
+
+        division_winners = (
+            conference_standings.sort_values(
+                ["division", "adjusted_wins", "expected_wins"],
+                ascending=[True, False, False],
+            )
+            .groupby("division")
+            .head(1)
+            .copy()
+        )
+
+        division_winners = division_winners.sort_values(
+            ["adjusted_wins", "expected_wins"],
+            ascending=False,
+        ).reset_index(drop=True)
+
+        division_winners["adjusted_seed"] = range(1, len(division_winners) + 1)
+        division_winners["seed_type"] = "Division Winner"
+
+        division_winner_teams = set(division_winners["team"])
+
+        wild_cards = conference_standings[
+            ~conference_standings["team"].isin(division_winner_teams)
+        ].copy()
+
+        wild_cards = wild_cards.sort_values(
+            ["adjusted_wins", "expected_wins"],
+            ascending=False,
+        ).head(3).reset_index(drop=True)
+
+        wild_cards["adjusted_seed"] = range(5, 5 + len(wild_cards))
+        wild_cards["seed_type"] = "Wild Card"
+
+        conference_seeds = pd.concat(
+            [division_winners, wild_cards],
+            ignore_index=True,
+        )
+
+        conference_seeds = conference_seeds.sort_values(
+            "adjusted_seed"
+        ).reset_index(drop=True)
+
+        all_seed_rows.append(conference_seeds)
+
+    adjusted_playoff_seeds = pd.concat(all_seed_rows, ignore_index=True)
+
+    return adjusted_playoff_seeds
+
+
+def create_adjusted_first_teams_out(adjusted_standings, adjusted_playoff_seeds):
+    """
+    Create adjusted first teams out for AFC and NFC.
+    """
+    playoff_teams = set(adjusted_playoff_seeds["team"])
+
+    first_out_rows = []
+
+    for conference in ["AFC", "NFC"]:
+        conference_non_playoff = adjusted_standings[
+            (adjusted_standings["conference"] == conference)
+            & (~adjusted_standings["team"].isin(playoff_teams))
+        ].copy()
+
+        conference_non_playoff = conference_non_playoff.sort_values(
+            ["adjusted_wins", "expected_wins"],
+            ascending=False,
+        ).head(3).reset_index(drop=True)
+
+        conference_non_playoff["adjusted_rank_out"] = range(
+            8,
+            8 + len(conference_non_playoff)
+        )
+
+        first_out_rows.append(conference_non_playoff)
+
+    adjusted_first_out = pd.concat(first_out_rows, ignore_index=True)
+
+    return adjusted_first_out
+
+
+def get_adjusted_playoff_status(selected_team, adjusted_playoff_seeds, adjusted_first_out):
+    """
+    Return adjusted playoff status for the selected team.
+    """
+    seed_row = adjusted_playoff_seeds[
+        adjusted_playoff_seeds["team"] == selected_team
+    ]
+
+    if len(seed_row) > 0:
+        seed = int(seed_row.iloc[0]["adjusted_seed"])
+        seed_type = seed_row.iloc[0]["seed_type"]
+
+        return {
+            "status": "Projected Playoff Team",
+            "detail": f"#{seed} seed, {seed_type}",
+        }
+
+    first_out_row = adjusted_first_out[
+        adjusted_first_out["team"] == selected_team
+    ]
+
+    if len(first_out_row) > 0:
+        rank_out = int(first_out_row.iloc[0]["adjusted_rank_out"])
+
+        return {
+            "status": "First Teams Out",
+            "detail": f"Projected #{rank_out} in conference",
+        }
+
+    return {
+        "status": "Outside Playoff Picture",
+        "detail": "Not currently projected in playoff race",
+    }
+
 
 def render_team_header(selected_team):
     """Render selected team header."""
@@ -446,14 +578,41 @@ try:
         selected_outcomes
     )
 
+    win_change = adjusted_wins - original_wins
+    loss_change = adjusted_losses - original_losses
+
+    original_league_records = build_original_league_records(predictions)
+
+    adjusted_league_records, adjusted_predictions = apply_what_if_changes_to_league(
+        predictions,
+        selected_team,
+        selected_outcomes
+    )
+
+    adjusted_standings = create_adjusted_standings(
+        original_league_records,
+        adjusted_league_records,
+        projected_records
+    )
+
+    adjusted_playoff_seeds = create_adjusted_playoff_seeds(adjusted_standings)
+
+    adjusted_first_out = create_adjusted_first_teams_out(
+        adjusted_standings,
+        adjusted_playoff_seeds
+    )
+
+    adjusted_playoff_status = get_adjusted_playoff_status(
+        selected_team,
+        adjusted_playoff_seeds,
+        adjusted_first_out
+    )
+
     st.divider()
 
     section_header("Adjusted Projection")
 
-    win_change = adjusted_wins - original_wins
-    loss_change = adjusted_losses - original_losses
-
-    acol1, acol2, acol3 = st.columns(3)
+    acol1, acol2, acol3, acol4 = st.columns(4)
 
     acol1.metric(
         "Adjusted Projected Record",
@@ -469,6 +628,13 @@ try:
         "Loss Change",
         f"{loss_change:+d}"
     )
+
+    acol4.metric(
+        "Adjusted Playoff Status",
+        adjusted_playoff_status["status"]
+    )
+
+    st.info(adjusted_playoff_status["detail"])
 
     if len(changed_games) > 0:
         st.markdown("### Changed Games")
@@ -492,19 +658,6 @@ try:
         "Each changed game affects both the selected team and its opponent."
     )
 
-    original_league_records = build_original_league_records(predictions)
-
-    adjusted_league_records, adjusted_predictions = apply_what_if_changes_to_league(
-        predictions,
-        selected_team,
-        selected_outcomes
-    )
-
-    adjusted_standings = create_adjusted_standings(
-        original_league_records,
-        adjusted_league_records,
-        projected_records
-    )
 
     affected_teams = get_most_affected_teams(adjusted_standings)
 
@@ -622,6 +775,124 @@ try:
 
     st.divider()
 
+    section_header("Adjusted Playoff Picture")
+
+    st.write(
+        "This section recalculates playoff seeds using the adjusted league standings from your scenario."
+    )
+
+    playoff_col1, playoff_col2 = st.columns(2)
+
+    with playoff_col1:
+        st.markdown("### AFC Adjusted Seeds")
+
+        afc_adjusted_seeds = adjusted_playoff_seeds[
+            adjusted_playoff_seeds["conference"] == "AFC"
+        ].copy()
+
+        afc_adjusted_display = afc_adjusted_seeds[
+            [
+                "adjusted_seed",
+                "team",
+                "division",
+                "seed_type",
+                "original_record",
+                "adjusted_record",
+                "win_change",
+                "loss_change",
+                "expected_wins",
+                "expected_losses",
+            ]
+        ].copy()
+
+        st.dataframe(
+            clean_column_names(afc_adjusted_display),
+            use_container_width=True,
+            hide_index=True
+        )
+
+        st.markdown("#### AFC Adjusted First Teams Out")
+
+        afc_adjusted_out = adjusted_first_out[
+            adjusted_first_out["conference"] == "AFC"
+        ].copy()
+
+        afc_adjusted_out_display = afc_adjusted_out[
+            [
+                "adjusted_rank_out",
+                "team",
+                "division",
+                "original_record",
+                "adjusted_record",
+                "win_change",
+                "loss_change",
+                "expected_wins",
+                "expected_losses",
+            ]
+        ].copy()
+
+        st.dataframe(
+            clean_column_names(afc_adjusted_out_display),
+            use_container_width=True,
+            hide_index=True
+        )
+
+    with playoff_col2:
+        st.markdown("### NFC Adjusted Seeds")
+
+        nfc_adjusted_seeds = adjusted_playoff_seeds[
+            adjusted_playoff_seeds["conference"] == "NFC"
+        ].copy()
+
+        nfc_adjusted_display = nfc_adjusted_seeds[
+            [
+                "adjusted_seed",
+                "team",
+                "division",
+                "seed_type",
+                "original_record",
+                "adjusted_record",
+                "win_change",
+                "loss_change",
+                "expected_wins",
+                "expected_losses",
+            ]
+        ].copy()
+
+        st.dataframe(
+            clean_column_names(nfc_adjusted_display),
+            use_container_width=True,
+            hide_index=True
+        )
+
+        st.markdown("#### NFC Adjusted First Teams Out")
+
+        nfc_adjusted_out = adjusted_first_out[
+            adjusted_first_out["conference"] == "NFC"
+        ].copy()
+
+        nfc_adjusted_out_display = nfc_adjusted_out[
+            [
+                "adjusted_rank_out",
+                "team",
+                "division",
+                "original_record",
+                "adjusted_record",
+                "win_change",
+                "loss_change",
+                "expected_wins",
+                "expected_losses",
+            ]
+        ].copy()
+
+        st.dataframe(
+            clean_column_names(nfc_adjusted_out_display),
+            use_container_width=True,
+            hide_index=True
+        )
+
+    st.divider()
+
     section_header("Adjusted Schedule View")
 
     adjusted_rows = []
@@ -665,8 +936,14 @@ try:
     )
 
     st.write(
-        "The simulator now recalculates adjusted league records, division standings, and conference standings. "
-        "A future version can also recalculate playoff seeds, playoff brackets, and the projected Super Bowl champion from the adjusted standings."
+        "The simulator recalculates adjusted league records, division standings, conference standings, "
+        "playoff seeds, and first teams out. This helps show how a few changed outcomes could affect "
+        "the playoff picture."
+    )
+
+    st.write(
+        "A future version can also simulate the adjusted playoff bracket and projected Super Bowl champion "
+        "from the adjusted playoff seeds."
     )
 
 except FileNotFoundError:
