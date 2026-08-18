@@ -1,5 +1,5 @@
 {
-    "last_updated": "2026-08-11 09:56:49",
+    "last_updated": "2026-08-18 09:28:13",
     "model": "Logistic Regression win model + Random Forest margin model",
     "margin_model": "Random Forest Regressor",
     "margin_model_mae": 10.28,
