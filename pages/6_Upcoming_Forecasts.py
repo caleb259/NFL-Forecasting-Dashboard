@@ -347,7 +347,7 @@ try:
             <p class="muted-text">
                 <strong>Win model:</strong> {metadata.get("win_model", metadata["model"])}<br>
                 <strong>Margin model:</strong> {metadata.get("margin_model", "Not available")}<br>
-                <strong>Margin model MAE:</strong> {metadata.get("margin_model_mae", "Not available")} points<br>
+                <strong>Margin evaluation:</strong> Updated model awaiting reevaluation<br>
                 <strong>Forecast season:</strong> {metadata["forecast_season"]}<br>
                 <strong>Upcoming games forecasted:</strong> {metadata["upcoming_games_forecasted"]}<br>
                 <strong>Last updated:</strong> {metadata["last_updated"]}

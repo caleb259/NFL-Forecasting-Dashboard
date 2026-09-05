@@ -310,7 +310,7 @@ st.markdown(
         <p class="muted-text">
             <strong>Win model:</strong> {win_model_name}<br>
             <strong>Margin model:</strong> {margin_model_name}<br>
-            <strong>Margin model MAE:</strong> {margin_model_mae} points<br>
+            <strong>Margin evaluation:</strong> Updated model awaiting reevaluation<br>
             <strong>Upcoming games forecasted:</strong> {upcoming_games}<br>
             <strong>Forecast last updated:</strong> {last_updated_text}
         </p>

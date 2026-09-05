@@ -14,11 +14,20 @@ View the live Streamlit dashboard here:
 
 This project currently has a working Streamlit dashboard with multiple pages for exploring model predictions, team performance, game breakdowns, and model accuracy.
 
-Current best model:
+Current evaluated winner model: Logistic Regression with scoring
+carryover (weight 4), recent form, Elo, and strength of schedule.
 
-| Model | Training Data | Testing Data | Accuracy |
-|---|---|---|---:|
-| Logistic Regression with Elo features | 2018–2024 NFL seasons | 2025 NFL season | 63.51% |
+| Evaluation | Games | Accuracy | Brier score | Log loss |
+|---|---:|---:|---:|---:|
+| 2021–2024 development backtests | 1,136 | 63.91% | 0.2247 | 0.6415 |
+| 2025 follow-up evaluation | 284 | 64.79% | 0.2254 | 0.6410 |
+
+Evaluations include regular-season and postseason games, excluding ties.
+Development used expanding training windows. The 2025 evaluation trained
+on 2018–2024; 2025 had already been inspected and is not an untouched
+holdout.
+
+See [experiment details](docs/scoring_carryover_experiment.md).
 
 ## Project Goals
 
@@ -217,7 +226,8 @@ Data used includes:
 
 ## Modeling Approach
 
-The current best model is Logistic Regression with Elo features.
+The selected winner model is Logistic Regression with weight-4 scoring
+carryover, recent-form, Elo, and strength-of-schedule features.
 
 The model predicts whether the home team wins.
 
@@ -239,7 +249,8 @@ The dashboard uses two model types:
 - Logistic Regression for win probability
 - Random Forest Regressor for projected margin of victory
 
-The margin model had an MAE of 10.28 points when tested on the 2025 season.
+The margin model has not been reevaluated after the scoring-feature
+changes. Older margin-error figures do not describe the updated model.
 
 
 ## Features Used
@@ -252,6 +263,9 @@ The current best model uses the following feature groups.
 - Average points allowed difference
 - Average point differential difference
 - Win percentage difference
+Scoring averages blend previous-season results with current-season
+results, giving the previous season the weight of four games. Win
+percentage uses current-season results without this blend.
 
 ### Recent-Form Features
 
@@ -264,7 +278,12 @@ The current best model uses the following feature groups.
 
 - Elo rating difference
 - Elo rating difference with home-field advantage
-- Elo-based home win probability
+- Elo-based home win probability\
+
+### Strength-of-Schedule Features
+
+- Average previous-opponent pregame win percentage difference
+- Current opponent win percentage difference
 
 ## What Elo Means
 
@@ -287,21 +306,17 @@ Current Elo settings:
 | K-factor | 20 |
 | Home-field advantage | 55 Elo points |
 
-Adding Elo improved model accuracy from 62.46% to 63.51%.
+## Evaluation History
 
-## Model Accuracy History
+Earlier experiments used different features, data, and splitting methods.
+Their accuracy figures are not a directly comparable model ranking.
 
-| Model Version | Accuracy |
-|---|---:|
-| Baseline random split | 59.35% |
-| Season-based split | 61.40% |
-| Recent-form features | 61.40% |
-| Expanded training data | 62.46% |
-| EPA features | 61.40% |
-| Model comparison best | 62.46% |
-| Elo features | 63.51% |
+The current comparison uses matched games and evaluation procedures.
+See [the scoring-carryover experiment](docs/scoring_carryover_experiment.md)
+for results, selection decisions, and limitations.
 
-The current best model is Logistic Regression with Elo features.
+The selected winner model is Logistic Regression with weight-4 scoring
+carryover, recent-form, Elo, and strength-of-schedule features.
 
 ## Project Structure
 

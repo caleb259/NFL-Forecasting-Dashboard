@@ -1,201 +1,124 @@
+from pathlib import Path
+import sys
+
 import pandas as pd
 import streamlit as st
-import sys
-sys.path.append("src")
 
-from style import apply_global_styles, page_header, section_header, clean_column_names
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT / "src"))
+
+from style import apply_global_styles, page_header
 
 
 st.set_page_config(
     page_title="Model Comparison",
-    page_icon="🤖",
-    layout="wide"
+    page_icon="📊",
+    layout="wide",
 )
 
+apply_global_styles()
 
 page_header(
     title="Model Comparison",
-    icon="🤖",
-    subtitle="This page compares the different modeling approaches tested during the project and shows how the current best model was selected."
+    icon="📊",
+    subtitle="Measured results from the scoring-carryover experiment.",
 )
-
-st.divider()
-
-st.header("Current Best Model")
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.metric("Best Model", "Logistic Regression + Elo + SOS")
-
-with col2:
-    st.metric("Best Accuracy", "63.86%")
-
-with col3:
-    st.metric("Testing Season", "2025")
-
-st.success(
-    "Logistic Regression with Elo and strength of schedule features is currently the best-performing model."
-)
-
-st.divider()
-
-st.header("Model Accuracy Comparison")
-
-model_results = pd.DataFrame(
-    {
-        "Model Version": [
-            "Baseline random split",
-            "Season-based split",
-            "Recent-form features",
-            "Expanded training data",
-            "EPA features",
-            "Logistic Regression",
-            "Random Forest",
-            "Gradient Boosting",
-            "Logistic Regression + Elo",
-            "Logistic Regression + Elo + SOS"
-        ],
-        "Accuracy": [
-            59.35,
-            61.40,
-            61.40,
-            62.46,
-            61.40,
-            62.46,
-            60.70,
-            56.49,
-            63.51,
-            63.86
-        ],
-        "Notes": [
-            "First baseline test using random train-test split",
-            "More realistic train/test split by season",
-            "Added last-3-game recent form features",
-            "Expanded data to 2018–2025",
-            "Tested play-by-play EPA features",
-            "Best model from model comparison without Elo",
-            "Tree-based model using same expanded features",
-            "Boosting model using same expanded features",
-            "Model with Elo rating features",
-            "Current best model with Elo and strength of schedule features"
-        ]
-    }
-)
-
-st.dataframe(
-    clean_column_names(model_results),
-    use_container_width=True,
-    hide_index=True
-)
-
-st.bar_chart(
-    model_results,
-    x="Model Version",
-    y="Accuracy"
-)
-
-st.divider()
-
-st.header("Why the Current Model Was Chosen")
 
 st.write(
-    "The current best model was selected because it had the highest testing accuracy "
-    "while still being simple and explainable."
-)
-
-st.markdown(
-    """
-    **Reasons for choosing Logistic Regression with Elo features:**
-
-    - It had the highest accuracy at 63.51%.
-    - It produces win probabilities, which are useful for the dashboard.
-    - It is easier to explain than more complex models.
-    - Elo ratings add a clear team-strength signal.
-    - It fits the goal of making an explainable forecasting dashboard.
-    """
-)
-
-st.divider()
-
-st.header("Model Comparison Notes")
-
-st.subheader("Logistic Regression")
-
-st.write(
-    "Logistic Regression performed well throughout the project. It is simple, stable, "
-    "and works well with difference-based features like point differential, win percentage, and Elo rating difference."
-)
-
-st.subheader("Random Forest")
-
-st.write(
-    "Random Forest did not outperform Logistic Regression in this test. This may be because the current features are already fairly simple and linear, "
-    "so the tree-based model did not gain much additional advantage."
-)
-
-st.subheader("Gradient Boosting")
-
-st.write(
-    "Gradient Boosting performed worse than the other models in this comparison. It may require more tuning or stronger features to perform better."
-)
-
-st.subheader("EPA Feature Model")
-
-st.write(
-    "EPA features were tested because EPA measures play-level efficiency. However, the first version of the EPA features did not improve accuracy. "
-    "Future versions could test more detailed EPA features, such as passing EPA, rushing EPA, and success rate."
-)
-
-st.subheader("Elo Feature Model")
-
-st.write(
-    "Elo features improved the model because they provide a running team-strength rating before each game. "
-    "This helped the model move from 62.46% accuracy to 63.51% accuracy."
-)
-
-st.divider()
-
-st.header("Accuracy Improvement Over Time")
-
-improvement_data = model_results[
-    [
-        "Model Version",
-        "Accuracy"
-    ]
-].copy()
-
-improvement_data["Experiment Number"] = range(1, len(improvement_data) + 1)
-
-st.line_chart(
-    improvement_data,
-    x="Experiment Number",
-    y="Accuracy"
+    "The selected approach uses logistic regression with scoring, "
+    "recent-form, Elo, and strength-of-schedule features. "
+    "Previous-season scoring averages receive the weight of four games "
+    "and gradually give way to current-season results."
 )
 
 st.caption(
-    "The line chart shows how model accuracy changed across the main experiments."
+    "These are recorded experiment results, not live performance metrics. "
+    "Accuracy measures winner picks. Lower Brier score and log loss "
+    "indicate better probability predictions."
 )
 
-st.divider()
+development_tab, followup_tab = st.tabs([
+    "2021–2024 development",
+    "2025 follow-up",
+])
 
-st.header("Next Modeling Improvements")
+with development_tab:
+    st.write(
+        "Each test season uses a model trained on earlier seasons only: "
+        "2018–2020 predicts 2021, and the training window expands through "
+        "2018–2023 predicting 2024."
+    )
 
-st.write(
-    "The current model is the strongest version so far, but there are still several ways to improve it."
-)
+    results = pd.DataFrame({
+        "Approach": [
+            "Original features",
+            "Scoring carryover — weight 4",
+            "Elo alone",
+            "Home-win baseline",
+        ],
+        "Accuracy": ["63.29%", "63.91%", "62.76%", "54.93%"],
+        "Brier score": [0.2279, 0.2247, 0.2301, 0.2477],
+        "Log loss": [0.6493, 0.6415, 0.6532, 0.6886],
+    })
 
-st.markdown(
-    """
-    Planned future modeling improvements:
+    st.dataframe(results, hide_index=True, use_container_width=True)
 
-    - Tune the Elo settings, such as K-factor and home-field advantage
-    - Add strength of schedule
-    - Add player injury data
-    - Add weather data
-    - Add betting spread comparison
-    - Predict point margin instead of only winner
-    - Test more detailed EPA and success-rate features
-    - Tune Random Forest and Gradient Boosting models more carefully
-    """
-)
+    st.caption(
+        "1,136 non-tied games, including postseason games. "
+        "Carryover weights 0, 2, 4, and 8 were compared. "
+        "Weight 4 was selected provisionally; weight 2 performed similarly."
+    )
+
+    st.write(
+        "Weight 4 produced seven additional correct picks overall. "
+        "Probability scores improved in three seasons and worsened "
+        "slightly in 2024."
+    )
+
+with followup_tab:
+    st.write(
+        "Models were trained on 2018–2024 and evaluated on 2025. "
+        "The carryover weight was fixed at four before this comparison."
+    )
+
+    results = pd.DataFrame({
+        "Approach": [
+            "Original features",
+            "Scoring carryover — weight 4",
+            "Elo alone",
+            "Home-win baseline",
+        ],
+        "Accuracy": ["64.08%", "64.79%", "61.62%", "53.52%"],
+        "Brier score": [0.2286, 0.2254, 0.2371, 0.2489],
+        "Log loss": [0.6494, 0.6410, 0.6698, 0.6909],
+    })
+
+    st.dataframe(results, hide_index=True, use_container_width=True)
+
+    st.caption(
+        "284 non-tied games, including postseason games. "
+        "2025 had already been inspected earlier in the project, "
+        "so it is not a completely untouched holdout."
+    )
+
+    st.write(
+        "Carryover produced 184 correct picks, compared with 182 "
+        "for the original features. These results support a modest "
+        "improvement, not a proven optimal setting."
+    )
+
+with st.expander("Evaluation scope and limitations"):
+    st.markdown(
+        """
+        - Ties remain in historical feature calculations but are excluded
+          from winner-classifier training and evaluation.
+        - Model coefficients are fixed for each test season; pregame
+          statistics update as earlier games finish.
+        - These comparisons do not evaluate the margin model.
+        - Current inputs do not include injuries, starting quarterbacks,
+          roster changes, or coaching changes.
+        - Earlier experiments used different setups and are not ranked
+          against these results here.
+        """
+    )
