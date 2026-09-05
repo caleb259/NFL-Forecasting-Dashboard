@@ -304,13 +304,11 @@ st.markdown(
     <div class="accent-card">
         <h3 style="margin-top: 0;">🔮 {forecast_season} Upcoming Forecasts</h3>
         <p class="muted-text">
-            The dashboard includes upcoming NFL season forecasts with predicted winners,
-            win probabilities, projected margins of victory, and projected team records.
+            Explore upcoming NFL matchups, predicted winners, and each team's
+            estimated chance of winning.
         </p>
         <p class="muted-text">
             <strong>Win model:</strong> {win_model_name}<br>
-            <strong>Margin model:</strong> {margin_model_name}<br>
-            <strong>Margin evaluation:</strong> Updated model awaiting reevaluation<br>
             <strong>Upcoming games forecasted:</strong> {upcoming_games}<br>
             <strong>Forecast last updated:</strong> {last_updated_text}
         </p>
@@ -321,82 +319,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-try:
-    hub_stats = get_forecast_hub_stats()
-
-    section_header("2026 Forecast Hub")
-
-    hub_col1, hub_col2, hub_col3, hub_col4, hub_col5 = st.columns(5)
-
-    with hub_col1:
-        render_forecast_hub_card(
-            title="Projected Champion",
-            main_value=hub_stats["super_bowl_champion"],
-            subtext=(
-                f"Super Bowl projection: "
-                f"{hub_stats['afc_champion']} vs {hub_stats['nfc_champion']}"
-            ),
-            team=hub_stats["super_bowl_champion"],
-        )
-
-    with hub_col2:
-        render_forecast_hub_card(
-            title="Top Projected Team",
-            main_value=hub_stats["top_projected_team"],
-            subtext=f"Projected record: {hub_stats['top_projected_record']}",
-            team=hub_stats["top_projected_team"],
-        )
-
-    with hub_col3:
-        render_forecast_hub_card(
-            title="Closest Game",
-            main_value=hub_stats["closest_game"],
-            subtext=f"Projected margin: {hub_stats['closest_game_margin']}",
-        )
-
-    with hub_col4:
-        render_forecast_hub_card(
-            title="Largest Projected Margin",
-            main_value=hub_stats["largest_margin_game"],
-            subtext=f"Projected margin: {hub_stats['largest_margin']}",
-        )
-
-    with hub_col5:
-        render_forecast_hub_card(
-            title="Forecast Updated",
-            main_value="Current Forecast",
-            subtext=hub_stats["last_updated"],
-        )
-
-except FileNotFoundError:
-    st.info(
-        "Forecast hub data is not available yet. Run `python src/predict_upcoming.py` to generate forecast files."
-    )
-
-try:
-    storylines = get_forecast_storylines()
-
-    section_header("Top 2026 Forecast Storylines")
-
-    st.write(
-        "These storylines summarize the biggest takeaways from the current 2026 forecast."
-    )
-
-    story_col1, story_col2 = st.columns(2)
-
-    for index, storyline in enumerate(storylines, start=1):
-        with story_col1 if index % 2 == 1 else story_col2:
-            render_storyline_card(
-                index,
-                storyline["title"],
-                storyline["text"]
-            )
-
-except FileNotFoundError:
-    st.info(
-        "Forecast storylines are not available yet. Run `python src/predict_upcoming.py` to generate forecast files."
-    )
 
 try:
     upcoming_predictions = load_upcoming_predictions()
@@ -418,8 +340,8 @@ try:
     section_header(f"Week {next_week} Upcoming Forecasts")
 
     st.write(
-        "These are the next upcoming forecasted games from the 2026 season. "
-        "For the full schedule, projected records, standings, and playoff picture, use the Upcoming Forecasts page."
+        "Current winner forecasts for the next scheduled week. "
+        "Open Upcoming Forecasts to browse other weeks."
     )
 
     display_columns = [
@@ -429,9 +351,6 @@ try:
         "home_team",
         "predicted_winner",
         "winner_win_probability",
-        "confidence_level",
-        "upset_alert_label",
-        "predicted_margin_text",
         "status",
     ]
 
@@ -500,12 +419,7 @@ try:
 
             with col2:
                 st.write(f"Predicted Winner: **{row['predicted_winner']}**")
-                st.write(f"Confidence: **{row['confidence_level']}**")
-                st.write(f"Projected Margin: **{row['predicted_margin_text']}**")
                 st.write(f"Game Date: **{row['gameday'].date()}**")
-
-                if row.get("upset_alert", False):
-                    st.warning("Upset Alert")
 
             with col3:
                 st.info(row["status"])
@@ -525,7 +439,7 @@ with col1:
         <div class="accent-card">
             <h4>🔮 Upcoming Forecasts</h4>
             <p class="muted-text">
-                View 2026 predicted winners, win probabilities, projected margins, and projected records.
+                Browse upcoming matchups, predicted winners, and win probabilities by week.
             </p>
         </div>
         """,
