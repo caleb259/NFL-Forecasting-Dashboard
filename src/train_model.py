@@ -4,6 +4,7 @@ from sklearn.metrics import accuracy_score, classification_report
 from data_loader import load_game_results, save_csv
 from elo import create_elo_features
 from feature_engineering import create_modeling_dataset
+from season_carryover import apply_scoring_carryover
 
 
 
@@ -126,6 +127,19 @@ def main():
 
     print("Creating modeling dataset...")
     modeling_data = create_modeling_dataset(game_results)
+    
+    print("Applying previous-season scoring carryover...")
+    modeling_data = apply_scoring_carryover(
+        modeling_data,
+        game_results,
+        carryover_weight=4,
+    )
+
+    # Keep tied games in feature history, but exclude them from
+    # training and evaluating the winner classifier.
+    modeling_data = modeling_data.loc[
+        modeling_data["home_score"] != modeling_data["away_score"]
+    ].copy()
 
     print("Creating and merging Elo features...")
     modeling_data = add_elo_features(modeling_data, game_results)

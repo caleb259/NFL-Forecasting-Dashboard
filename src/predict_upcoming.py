@@ -9,10 +9,19 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import accuracy_score
 
 from data_loader import save_csv, create_game_results_from_schedules
-from feature_engineering import create_modeling_dataset
+from feature_engineering import (
+    create_modeling_dataset,
+    add_season_long_pregame_features,
+    add_strength_of_schedule_features,
+)
 from elo import create_elo_features, get_latest_elos, expected_home_win_prob
 from playoff_predictor import simulate_full_playoffs
 from team_info import get_team_conference, get_team_division
+from season_carryover import (
+    apply_scoring_carryover,
+    apply_upcoming_scoring_carryover,
+)
+import argparse
 
 
 TRAIN_START_SEASON = 2018
@@ -95,29 +104,44 @@ def add_elo_to_modeling_data(modeling_data, game_results):
 
 
 def train_models(modeling_data):
-    """
-    Train the win probability model and the predicted margin model.
-    """
-    modeling_data = modeling_data.dropna(subset=MODEL_FEATURES).copy()
+    """Train winner and margin models using completed games."""
+    modeling_data = modeling_data.copy()
 
-    X = modeling_data[MODEL_FEATURES]
-    y_win = modeling_data["home_team_won"]
+    if modeling_data[MODEL_FEATURES].isna().any().any():
+        raise ValueError("Missing values found in model features.")
+
+    # Winner classification excludes ties.
+    winner_data = modeling_data.loc[
+        modeling_data["home_score"] != modeling_data["away_score"]
+    ].copy()
+
+    X_win = winner_data[MODEL_FEATURES]
+    y_win = (
+        winner_data["home_score"] > winner_data["away_score"]
+    ).astype(int)
+
+    # Margin prediction includes ties, whose actual margin is zero.
+    X_margin = modeling_data[MODEL_FEATURES]
     y_margin = modeling_data["home_point_diff"]
 
     win_model = LogisticRegression(max_iter=1000)
     margin_model = RandomForestRegressor(
         n_estimators=300,
         max_depth=5,
-        random_state=42
+        random_state=42,
     )
 
-    win_model.fit(X, y_win)
-    margin_model.fit(X, y_margin)
+    win_model.fit(X_win, y_win)
+    margin_model.fit(X_margin, y_margin)
 
-    win_pred = win_model.predict(X)
-    training_accuracy = accuracy_score(y_win, win_pred)
+    training_accuracy = accuracy_score(
+        y_win, win_model.predict(X_win)
+    )
 
-    print(f"Training accuracy on completed games: {training_accuracy:.2%}")
+    print(
+        "Winner model training accuracy "
+        f"(not test performance): {training_accuracy:.2%}"
+    )
 
     return win_model, margin_model
 
@@ -194,90 +218,68 @@ def create_team_game_rows(game_results):
     return team_games
 
 
-def build_team_state(game_results, latest_elos):
+def build_team_state(game_results, latest_elos, season=CURRENT_SEASON):
     """
-    Build the current team state used for upcoming game predictions.
+    Build team statistics from completed current-season games.
 
-    If a team has completed games in 2026, use 2026 stats.
-    If not, use 2025 final stats as preseason carryover.
+    Previous-season scoring carryover is applied separately by
+    apply_upcoming_scoring_carryover().
     """
     team_games = create_team_game_rows(game_results)
 
+    # Reuse training calculations to recover each past opponent's
+    # win percentage as it stood before that matchup.
+    team_games = add_season_long_pregame_features(team_games)
+    team_games = add_strength_of_schedule_features(team_games)
+
     team_states = {}
 
-    all_teams = sorted(
-        set(team_games["team"].unique())
-    )
+    for team in sorted(team_games["team"].unique()):
+        current_rows = team_games.loc[
+            (team_games["team"] == team)
+            & (team_games["season"] == season)
+        ].sort_values(["week", "gameday"])
 
-    for team in all_teams:
-        team_rows = team_games[team_games["team"] == team].copy()
-
-        current_rows = team_rows[team_rows["season"] == CURRENT_SEASON].copy()
-
-        if len(current_rows) > 0:
-            rows_to_use = current_rows
-            state_season = CURRENT_SEASON
-        else:
-            rows_to_use = team_rows[team_rows["season"] == PREVIOUS_SEASON].copy()
-            state_season = PREVIOUS_SEASON
-
-        rows_to_use = rows_to_use.sort_values(["week", "gameday"])
-
-        if len(rows_to_use) == 0:
-            team_states[team] = {
-                "state_season": state_season,
-                "games_played": 0,
-                "avg_points_scored_before": 0,
-                "avg_points_allowed_before": 0,
-                "avg_point_diff_before": 0,
-                "win_pct_before": 0,
-                "last3_avg_points_scored": 0,
-                "last3_avg_points_allowed": 0,
-                "last3_avg_point_diff": 0,
-                "last3_win_pct": 0,
-                "strength_of_schedule_before": 0,
-                "elo_rating": 1500,
-            }
-            continue
-
-        last3 = rows_to_use.tail(3)
-
-        # Opponent strength is based on opponent win percentage in the same state season.
-        season_rows = team_games[team_games["season"] == state_season].copy()
-
-        team_win_pcts = (
-            season_rows.groupby("team")["team_won"]
-            .mean()
-            .to_dict()
-        )
-
-        opponent_strengths = [
-            team_win_pcts.get(opponent, 0)
-            for opponent in rows_to_use["opponent"]
-        ]
-
-        strength_of_schedule = (
-            sum(opponent_strengths) / len(opponent_strengths)
-            if opponent_strengths
-            else 0
-        )
-
-        elo_rating = latest_elos.get(team, 1500)
-
-        team_states[team] = {
-            "state_season": state_season,
-            "games_played": len(rows_to_use),
-            "avg_points_scored_before": rows_to_use["points_scored"].mean(),
-            "avg_points_allowed_before": rows_to_use["points_allowed"].mean(),
-            "avg_point_diff_before": rows_to_use["point_diff"].mean(),
-            "win_pct_before": rows_to_use["team_won"].mean(),
-            "last3_avg_points_scored": last3["points_scored"].mean(),
-            "last3_avg_points_allowed": last3["points_allowed"].mean(),
-            "last3_avg_point_diff": last3["point_diff"].mean(),
-            "last3_win_pct": last3["team_won"].mean(),
-            "strength_of_schedule_before": strength_of_schedule,
-            "elo_rating": elo_rating,
+        state = {
+            "state_season": season,
+            "games_played": len(current_rows),
+            "avg_points_scored_before": 0.0,
+            "avg_points_allowed_before": 0.0,
+            "avg_point_diff_before": 0.0,
+            "win_pct_before": 0.0,
+            "last3_avg_points_scored": 0.0,
+            "last3_avg_points_allowed": 0.0,
+            "last3_avg_point_diff": 0.0,
+            "last3_win_pct": 0.0,
+            "strength_of_schedule_before": 0.0,
+            "elo_rating": latest_elos.get(team, 1500),
         }
+
+        if not current_rows.empty:
+            recent = current_rows.tail(3)
+
+            state.update({
+                "avg_points_scored_before":
+                    current_rows["points_scored"].mean(),
+                "avg_points_allowed_before":
+                    current_rows["points_allowed"].mean(),
+                "avg_point_diff_before":
+                    current_rows["point_diff"].mean(),
+                "win_pct_before":
+                    current_rows["team_won"].mean(),
+                "last3_avg_points_scored":
+                    recent["points_scored"].mean(),
+                "last3_avg_points_allowed":
+                    recent["points_allowed"].mean(),
+                "last3_avg_point_diff":
+                    recent["point_diff"].mean(),
+                "last3_win_pct":
+                    recent["team_won"].mean(),
+                "strength_of_schedule_before":
+                    current_rows["opponent_win_pct_before"].mean(),
+            })
+
+        team_states[team] = state
 
     return team_states
 
@@ -611,9 +613,10 @@ def save_forecast_metadata(predictions):
         "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "model": "Logistic Regression win model + Random Forest margin model",
         "margin_model": "Random Forest Regressor",
-        "margin_model_mae": 10.28,
-        "margin_model_rmse": 12.94,
-        "margin_model_r2": 0.162,
+        "scoring_carryover_weight": 4,
+        "margin_evaluation_status": (
+            "Not reevaluated after scoring-feature changes"
+        ),
         "forecast_season": CURRENT_SEASON,
         "upcoming_games_forecasted": int(len(predictions)),
         "prediction_file": PREDICTION_OUTPUT_PATH,
@@ -661,17 +664,24 @@ def add_upset_alerts(predictions, projected_records):
     return predictions
 
 
-def main():
+def main(dry_run=False):
     schedules = load_schedules()
 
     # Save a copy of the 2026 schedule locally for reference.
     schedules_2026 = schedules[schedules["season"] == CURRENT_SEASON].copy()
-    save_csv(schedules_2026, "data/processed/schedules_2026.csv")
+    if not dry_run:
+        save_csv(schedules_2026, "data/processed/schedules_2026.csv")
 
     completed_games = prepare_completed_games(schedules)
 
     print("Creating modeling dataset from completed games...")
     modeling_data = create_modeling_dataset(completed_games)
+
+    modeling_data = apply_scoring_carryover(
+        modeling_data,
+        completed_games,
+        carryover_weight=4,
+    )
 
     print("Creating Elo features...")
     modeling_data, elo_features = add_elo_to_modeling_data(
@@ -702,10 +712,20 @@ def main():
 
     print(f"Upcoming games found: {len(upcoming_games)}")
 
+    if upcoming_games.empty:
+        print("No upcoming games to forecast.")
+        return
+
     print("Creating upcoming game features...")
     upcoming_features = create_upcoming_features(
         upcoming_games,
         team_states
+    )
+
+    upcoming_features = apply_upcoming_scoring_carryover(
+        upcoming_features,
+        completed_games,
+        carryover_weight=4,
     )
 
     print("Creating upcoming predictions...")
@@ -714,6 +734,52 @@ def main():
         win_model,
         margin_model
     )
+
+    if dry_run:
+        probabilities = predictions[
+            ["home_win_probability", "away_win_probability"]
+        ]
+
+        if probabilities.isna().any().any():
+            raise ValueError("Forecast probabilities contain missing values.")
+
+        if not ((probabilities >= 0) & (probabilities <= 1)).all().all():
+            raise ValueError("Forecast probabilities must be between 0 and 1.")
+
+        if not (
+            (probabilities.sum(axis=1) - 1).abs() < 1e-10
+        ).all():
+            raise ValueError("Home and away probabilities must sum to 1.")
+
+        if predictions["game_id"].duplicated().any():
+            raise ValueError("Duplicate games found in forecasts.")
+
+        first_week = predictions["week"].min()
+        preview = predictions.loc[
+            predictions["week"] == first_week,
+            [
+                "week",
+                "gameday",
+                "away_team",
+                "home_team",
+                "predicted_winner",
+                "home_win_probability",
+                "away_win_probability",
+            ],
+        ]
+
+        print(f"\nPreview: remaining games in Week {first_week}\n")
+        print(preview.to_string(
+            index=False,
+            formatters={
+                "home_win_probability": "{:.1%}".format,
+                "away_win_probability": "{:.1%}".format,
+            },
+        ))
+
+        print(f"\nTotal games forecasted: {len(predictions)}")
+        print("Dry run complete: no forecast or schedule files were saved.")
+        return
 
     print("Creating projected records...")
     projected_records = create_projected_records(
@@ -766,4 +832,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Preview forecasts without saving output files.",
+    )
+    args = parser.parse_args()
+    main(dry_run=args.dry_run)
