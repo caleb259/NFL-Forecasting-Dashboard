@@ -1,521 +1,247 @@
-# Fourth & Forecast: NFL Game Prediction Dashboard
+# Fourth & Forecast
+### NFL game predictions, explained.
 
-Fourth & Forecast is an NFL forecasting dashboard that predicts game outcomes using team-level statistics, Elo ratings, and machine learning.
+Fourth & Forecast is a Streamlit dashboard for exploring NFL game predictions,
+team performance, and the evidence behind each forecast.
 
-The goal of this project is to create an explainable sports analytics dashboard that shows not only which team is predicted to win, but also what information the model used to make that prediction.
+Built by Caleb Linsenbardt as an ongoing data science project, its main goal
+is to improve game-winner predictions through chronological evaluation,
+careful feature engineering, and clear communication of uncertainty.
 
-## Live Dashboard
+**[Open the live dashboard](https://nfl-forecasting-dashboard-bmigza2zszwnqz4rohkbzn.streamlit.app/)**
 
-View the live Streamlit dashboard here:
+## What you can explore
 
-[Fourth & Forecast Dashboard](https://nfl-forecasting-dashboard-bmigza2zszwnqz4rohkbzn.streamlit.app/)
+- **Upcoming forecasts:** predicted winners, home and away win probabilities,
+  and forecast update information.
+- **Game breakdowns:** historical predictions, actual outcomes, and the
+  features behind each prediction.
+- **Team dashboards:** team-level results, schedules, and projections.
+- **Model performance:** historical accuracy and game-by-game evaluation.
+- **Model methodology:** how scoring history, Elo, and other features
+  contribute to forecasts.
+- **Season scenarios:** exploratory playoff projections and what-if tools.
 
-## Current Status
+The dashboard uses saved prediction files. Opening it does not automatically
+retrain the models or incorporate new reports.
 
-This project currently has a working Streamlit dashboard with multiple pages for exploring model predictions, team performance, game breakdowns, and model accuracy.
+## Current winner model
 
-Current evaluated winner model: Logistic Regression with scoring
-carryover (weight 4), recent form, Elo, and strength of schedule.
+The current model uses **logistic regression** to estimate home-win
+probability from 13 team-level features:
 
-| Evaluation | Games | Accuracy | Brier score | Log loss |
+| Feature group | Information used |
+|---|---|
+| Scoring history | Pregame scoring and points-allowed averages, with previous-season carryover |
+| Recent form | Scoring and win percentage over the team's last three games in the current season |
+| Team strength | Elo differences and Elo-based home-win probability |
+| Record and schedule | Current-season win percentage and strength-of-schedule features |
+
+Scoring carryover gives the previous season the weight of **four games**.
+Its influence declines as current-season results accumulate. This blending
+does not apply to win percentage or recent-form features.
+
+Tied games remain in historical feature calculations but are excluded
+from winner-classifier training and evaluation.
+
+## Evaluated performance
+
+| Evaluation | Games | Accuracy ↑ | Brier score ↓ | Log loss ↓ |
 |---|---:|---:|---:|---:|
 | 2021–2024 development backtests | 1,136 | 63.91% | 0.2247 | 0.6415 |
 | 2025 follow-up evaluation | 284 | 64.79% | 0.2254 | 0.6410 |
 
 Evaluations include regular-season and postseason games, excluding ties.
-Development used expanding training windows. The 2025 evaluation trained
-on 2018–2024; 2025 had already been inspected and is not an untouched
-holdout.
-
-See [experiment details](docs/scoring_carryover_experiment.md).
-
-## Project Goals
-
-The main goals of this project are to:
-
-- Predict NFL game winners using historical team data
-- Create an interactive dashboard for viewing predictions
-- Explain how each forecast is calculated
-- Track model performance over time
-- Build a strong end-to-end data science portfolio project
-- Continue improving the model as better features and new data become available
-
-## Dashboard Pages
-
-The Streamlit dashboard currently includes the following pages:
-
-### Home
-
-The homepage shows:
-
-- Current model accuracy
-- Link/overview for 2026 upcoming forecasts
-- Dashboard section guide
-- Total games tested
-- Correct and incorrect picks
-- Weekly model evaluation prediction table
-- Prediction cards for each game
-- Model details and features used
-- Forecast Hub summary cards
-- Projected Super Bowl champion
-- Top projected team
-- Closest projected game
-- Largest projected margin game
-- Top 2026 forecast storylines
-- Plain-English takeaways from the model forecast
-
-### Game Breakdown
-
-The Game Breakdown page allows users to select a specific matchup and view:
-
-- Predicted winner
-- Actual winner
-- Home win probability
-- Final score
-- Feature values used by the model
-- Elo rating summary
-- Win probability chart
-
-### Team Dashboard
-
-The Team Dashboard page allows users to select a team and view:
-
-- Team record
-- Model accuracy for that team’s games
-- Number of times the model picked that team
-- Average team win probability
-- Game-by-game results
-- Team win probability by week
-- 2026 projected record
-- Expected record
-- Playoff status
-- Most winnable and toughest projected games
-- Full 2026 team schedule forecast
-
-### Model Performance
-
-The Model Performance page shows:
-
-- Overall model accuracy
-- Accuracy by week
-- Best and worst weeks
-- Accuracy by confidence level
-- Full prediction results
-
-### Model Comparison
 
-The Model Comparison page shows:
+- Development backtests used expanding training windows: train on earlier
+  seasons, then evaluate on the next season.
+- The 2025 evaluation trained on 2018–2024.
+- The 2025 season had already been inspected during development, so it is
+  not an untouched final holdout.
+- Accuracy measures winner picks. Brier score and log loss evaluate the
+  predicted probabilities; lower values are better.
+- These historical results are not a guarantee of future performance.
 
-- Accuracy results from each model experiment
-- Current best model
-- Why Logistic Regression with Elo was selected
-- Comparison of Logistic Regression, Random Forest, and Gradient Boosting
-- Future modeling improvements
+See the [scoring-carryover experiment](docs/scoring_carryover_experiment.md)
+for the comparison and selection process.
 
-### How the Model Works
+## Research checkpoint: quarterback information
 
-This page explains the project in plain English, including:
+The current production winner model does **not** include quarterback
+ratings or injury-report adjustments.
 
-- Data used
-- How data leakage is avoided
-- Features used by the model
-- What Elo means
-- What strength of schedule means
-- How Logistic Regression works
-- How upcoming forecasts are created
-- How predicted margin works
-- How projected records are calculated
-- How win probability should be interpreted
-- Current limitations
-- Future improvements
+Recent research has focused on two questions:
 
-### Upcoming Forecasts
+1. Does historical quarterback passing efficiency add useful information
+   beyond existing team features?
+2. Can the expected starter be identified reliably using information
+   available before a forecast?
 
-The Upcoming Forecasts page shows:
+### Initial QB feature experiment
 
-- 2026 scheduled game predictions
-- Predicted winners
-- Home and away win probabilities
-- Projected margin of victory
-- Projected team records
-- Expected team records based on win probabilities
-- Projected division standings
-- Projected conference standings
-- Forecast last updated metadata
-- Predicted margin of victory using a Random Forest Regressor
-- Projected playoff seeds
-- Projected playoff bracket
-- Projected Super Bowl matchup and champion
-- Confidence labels for each forecast
-- Upset alerts for selected matchups
+A weekly expanding-window experiment compared the existing features with
+the same features plus a home-versus-away QB passing-rating difference.
 
-### Playoff Predictor
+Both classifiers trained only on earlier 2025 games in this experiment.
+Testing covered Week 9 onward, including postseason.
 
-The Playoff Predictor page shows:
+| Approach | Games | Accuracy ↑ | Brier score ↓ | Log loss ↓ |
+|---|---:|---:|---:|---:|
+| Existing features | 164 | 62.80% | 0.2223 | 0.6362 |
+| Existing features + QB rating | 164 | 63.41% | 0.2228 | 0.6378 |
 
-- Projected AFC and NFC playoff seeds
-- First teams out of the playoff picture
-- Visual projected playoff bracket
-- Projected AFC and NFC champions
-- Projected Super Bowl matchup
-- Projected Super Bowl champion
-- Detailed playoff projection tables
+The added feature gained one correct winner pick but slightly worsened
+both probability metrics. It was **not promoted to production**.
 
-### What If Simulator
+These results use a different training setup and test sample from the
+main model evaluation above and should not be compared directly.
 
-The What If Simulator page allows users to:
+### Starter availability pilot
 
-- Select a team
-- View the team's 2026 forecasted schedule
-- Flip projected wins and losses
-- Compare original projected record to adjusted projected record
-- View changed games and adjusted schedule results
-- Recalculate league-wide projected records after changed outcomes
-- View adjusted division standings
-- View adjusted conference standings
-- See which teams are affected by scenario changes
-- Recalculate adjusted playoff seeds
-- View adjusted first teams out
-- Compare adjusted playoff status after changed outcomes
-- Recalculate adjusted playoff bracket
-- View adjusted AFC and NFC champions
-- View adjusted Super Bowl matchup and champion
+Depth-chart selections were compared with recorded starters, previous
+starters, and the previous game's passing leader. The audits highlighted
+cases where a depth-chart leader was not the player who started.
 
-## Dashboard Preview
+A separate four-game source pilot demonstrated how official team reports
+can supply explicit exclusions or starting plans before a 24-hour cutoff.
 
-### Home
+The evidence loader keeps availability, starting plans, and source
+timestamps separate. It leaves missing or conflicting evidence unresolved.
 
-![Home page](docs/images/home_page.png)
+Publisher timestamps were inspected, but historical page contents were
+not independently archive-verified. The selected pilot does not establish
+league-wide coverage or an accuracy improvement.
 
-### Game Breakdown
+Read more:
 
-![Game Breakdown page](docs/images/game_breakdown_page.png)
+- [QB rating experiment](docs/qb_rating_experiment.md)
+- [Availability source pilot](docs/qb_availability_source_pilot.md)
 
-### Team Dashboard
+## Run locally
 
-![Team Dashboard page](docs/images/team_dashboard_page.png)
+The project has been used with **Python 3.11 on Windows**.
 
-### Model Performance
+### Clone the repository
 
-![Model Performance page](docs/images/model_performance_page.png)
-
-### How the Model Works
-
-![How the Model Works page](docs/images/how_model_works_page.png)
-
-## Data
-
-The project uses NFL data from the nflverse ecosystem through the `nfl_data_py` Python package.
-
-The current dataset includes games from the 2018 through 2025 NFL seasons.
-
-Data used includes:
-
-- Season
-- Week
-- Game ID
-- Game date
-- Home team
-- Away team
-- Home score
-- Away score
-- Game result
-- Team scoring statistics
-- Recent team performance
-- Elo ratings
-
-## Modeling Approach
-
-The selected winner model is Logistic Regression with weight-4 scoring
-carryover, recent-form, Elo, and strength-of-schedule features.
-
-The model predicts whether the home team wins.
-
-The target variable is:
-
-```text
-home_team_won
-```
-
-Where:
-
-```text
-1 = home team won
-0 = home team lost
-```
-
-The dashboard uses two model types:
-
-- Logistic Regression for win probability
-- Random Forest Regressor for projected margin of victory
-
-The margin model has not been reevaluated after the scoring-feature
-changes. Older margin-error figures do not describe the updated model.
-
-
-## Features Used
-
-The current best model uses the following feature groups.
-
-### Season-Long Pregame Features
-
-- Average points scored difference
-- Average points allowed difference
-- Average point differential difference
-- Win percentage difference
-Scoring averages blend previous-season results with current-season
-results, giving the previous season the weight of four games. Win
-percentage uses current-season results without this blend.
-
-### Recent-Form Features
-
-- Last 3 games average points scored difference
-- Last 3 games average points allowed difference
-- Last 3 games average point differential difference
-- Last 3 games win percentage difference
-
-### Elo Features
-
-- Elo rating difference
-- Elo rating difference with home-field advantage
-- Elo-based home win probability\
-
-### Strength-of-Schedule Features
-
-- Average previous-opponent pregame win percentage difference
-- Current opponent win percentage difference
-
-## What Elo Means
-
-Elo is a team-strength rating system.
-
-Each team starts with a base rating. After each game, ratings are updated based on the result.
-
-A team gains Elo points when it wins and loses Elo points when it loses. The size of the rating change depends on how surprising the result was.
-
-For example:
-
-- If a strong team beats a weak team, the Elo change is small.
-- If a weak team upsets a strong team, the Elo change is larger.
-
-Current Elo settings:
-
-| Setting | Value |
-|---|---:|
-| Base Elo | 1500 |
-| K-factor | 20 |
-| Home-field advantage | 55 Elo points |
-
-## Evaluation History
-
-Earlier experiments used different features, data, and splitting methods.
-Their accuracy figures are not a directly comparable model ranking.
-
-The current comparison uses matched games and evaluation procedures.
-See [the scoring-carryover experiment](docs/scoring_carryover_experiment.md)
-for results, selection decisions, and limitations.
-
-The selected winner model is Logistic Regression with weight-4 scoring
-carryover, recent-form, Elo, and strength-of-schedule features.
-
-## Project Structure
-
-```text
-NFL-Forecasting-Dashboard/
-│
-├── Home.py
-├── requirements.txt
-├── README.md
-│
-├── data/
-│   ├── raw/
-│   ├── processed/
-│   └── predictions/
-│
-├── docs/
-│   ├── project_plan.md
-│   ├── data_dictionary.md
-│   ├── modeling_notes.md
-│   └── update_log.md
-│
-├── notebooks/
-│   ├── 01_data_exploration.ipynb
-│   ├── 02_feature_engineering.ipynb
-│   ├── 03_model_testing.ipynb
-│   ├── 04_model_improvement.ipynb
-│   ├── 05_recent_form_features.ipynb
-│   ├── 06_expand_training_data.ipynb
-│   ├── 07_epa_features.ipynb
-│   ├── 08_compare_models.ipynb
-│   └── 09_elo_features.ipynb
-│
-├── pages/
-│   ├── 1_Game_Breakdown.py
-│   ├── 2_Team_Dashboard.py
-│   ├── 3_Model_Performance.py
-│   ├── 4_Model_Comparison.py
-│   ├── 5_How_The_Model_Works.py
-│   ├── 6_Upcoming_Forecasts.py
-│   ├── 7_Playoff_Predictor.py
-│   └── 8_What_If_Simulator.py
-│
-└── src/
-    └── train_model.py
-```
-
-## Notebooks
-
-The project includes several notebooks that document the modeling process.
-
-| Notebook | Purpose |
-|---|---|
-| `01_data_exploration.ipynb` | Explore NFL schedule and results data |
-| `02_feature_engineering.ipynb` | Create first pregame features |
-| `03_model_testing.ipynb` | Train first baseline model |
-| `04_model_improvement.ipynb` | Test season-based train/test split |
-| `05_recent_form_features.ipynb` | Add last-3-game recent form features |
-| `06_expand_training_data.ipynb` | Expand training data to 2018–2025 |
-| `07_epa_features.ipynb` | Test EPA-based features |
-| `08_compare_models.ipynb` | Compare Logistic Regression, Random Forest, and Gradient Boosting |
-| `09_elo_features.ipynb` | Add Elo rating features |
-
-## Deployment Notes
-
-The Streamlit dashboard uses processed data and prediction files stored in the repository.
-
-Important app data files include:
-
-- `data/predictions/best_logistic_regression_predictions.csv`
-- `data/processed/game_results_2018_2025.csv`
-
-The app entry point is:
-
-```text
-Home.py
-```
-
-For local use, run:
-
-```bash
-streamlit run Home.py
-```
-
-For deployment on Streamlit Community Cloud, use `Home.py` as the main file path.
-
-## Updating Forecasts
-
-During the NFL season, forecasts can be refreshed by running:
-
-```bash
-python src/predict_upcoming.py
-```
-
-This updates upcoming game predictions, projected records, and forecast metadata.
-
-For the full weekly update process, see:
-
-```text
-docs/update_process.md
-```
-
-## Deployment Readiness Checklist
-
-Before deploying, make sure the following items are complete:
-
-- `requirements.txt` includes all needed Python packages.
-- `Home.py` is the Streamlit entry file.
-- Processed data files are included in the repository.
-- Prediction files are included in the repository.
-- The app runs locally with `streamlit run Home.py`.
-- The README includes clear setup and run instructions.
-- The dashboard pages load without missing file errors.
-
-## Files Needed by the App
-
-The dashboard depends on saved processed data and prediction files.
-
-Main files used by the app:
-
-```text
-data/predictions/best_logistic_regression_predictions.csv
-data/processed/game_results_2018_2025.csv
-```
-
-Additional processed files may also be used by notebooks or future model updates.
-
-Raw data files are ignored because they can be larger and can be recreated from the data loading scripts.
-
-## How to Run the Project Locally
-
-### 1. Clone the repository
-
-```bash
+```powershell
 git clone https://github.com/caleb259/NFL-Forecasting-Dashboard.git
 cd NFL-Forecasting-Dashboard
 ```
 
-### 2. Create a virtual environment
+### Create an environment and install dependencies
 
-On Windows:
-
-```bash
-python -m venv .venv
-.venv\Scripts\activate
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-### 3. Install requirements
+### Start the dashboard
 
-```bash
-pip install -r requirements.txt
+```powershell
+.\.venv\Scripts\python.exe -m streamlit run Home.py
 ```
 
-### 4. Train the model
+These commands use the environment's Python directly, so PowerShell
+activation is not required.
 
-```bash
-python src/train_model.py
+Saved processed data and predictions are included in the repository.
+Retraining is not required just to explore the dashboard.
+
+## Run evaluations and refresh forecasts
+
+From the project root:
+
+```powershell
+# Retrain the historical evaluation model and overwrite its prediction CSV
+.\.venv\Scripts\python.exe src/train_model.py
+
+# Evaluate the saved historical predictions
+.\.venv\Scripts\python.exe src/evaluate_predictions.py
+
+# Preview upcoming forecasts without saving output files
+.\.venv\Scripts\python.exe src/predict_upcoming.py --dry-run
+
+# Generate and save upcoming forecasts and related projections
+.\.venv\Scripts\python.exe src/predict_upcoming.py
 ```
 
-This creates the prediction file used by the dashboard:
+The forecast script is currently configured for the **2026 season**.
+Forecast generation requires access to its data sources.
+
+See the [update process](docs/update_process.md) for additional workflow notes.
+
+### Research checks
+
+```powershell
+.\.venv\Scripts\python.exe src/check_qb_rating.py
+.\.venv\Scripts\python.exe src/check_qb_availability_evidence.py
+```
+
+The broader QB audit uses downloaded historical data:
+
+```powershell
+.\.venv\Scripts\python.exe src/audit_qb_forecast_cutoffs.py
+```
+
+Research scripts are separate from production forecast generation.
+
+## Project structure
 
 ```text
-data/predictions/best_logistic_regression_predictions.csv
+Home.py             Streamlit entry point
+pages/              Dashboard pages
+src/                Feature engineering, models, evaluations, and audits
+data/processed/     Prepared historical datasets
+data/predictions/   Saved evaluation results and forecasts
+data/research/      Manually reviewed research evidence
+docs/               Methodology, experiment records, and workflow notes
+notebooks/          Earlier exploration and modeling experiments
 ```
 
-### 5. Run the Streamlit app
+## Data and tools
 
-```bash
-streamlit run Home.py
-```
+NFL data comes from the **nflverse ecosystem**, accessed through
+`nfl_data_py` and direct nflverse data files. The availability pilot also
+uses manually reviewed official team reports with source links.
 
-## Current Limitations
+The project uses:
 
-The current model is useful, but it is still an early version.
+- Python, pandas, and NumPy for data preparation
+- scikit-learn for modeling and evaluation
+- Streamlit and Plotly for the dashboard
 
-Current limitations include:
+## Current limitations
 
-- The model does not include player injuries.
-- The model does not include weather.
-- The model does not include betting market information.
-- The model does not predict final score.
-- The model does not predict point spread.
-- The model uses team-level data instead of player-level data.
-- The dashboard currently evaluates completed 2025 games instead of live future games.
+- The production winner model primarily reflects historical team results.
+  It does not explicitly model injuries, roster turnover, coaching changes,
+  weather, or betting markets.
+- Historical date filtering does not independently verify when every
+  source record was originally published or revised.
+- QB availability research is exploratory and is not integrated into
+  production forecasts.
+- The separate margin model has not been reevaluated after the scoring
+  feature changes.
+- Season and playoff projections are exploratory scenarios, not validated
+  championship probabilities.
+- Older notebooks document development history; their results are not
+  necessarily comparable with the current evaluation.
 
-## Future Improvements
+## Next priorities
 
-Planned future improvements include:
+- Expand the availability-source audit using a fixed sample across teams
+  and consecutive weeks.
+- Improve starter identification before testing further QB adjustments.
+- Validate candidate features chronologically against matched baselines.
+- Simplify dashboard navigation and presentation.
+- Preserve forecast snapshots for future evaluation of predictions made
+  at different times before kickoff.
 
-- Predict upcoming games for the next NFL season
-- Add automated weekly data updates
-- Add stronger EPA and success-rate features
-- Add injury data
-- Add weather data
-- Add betting spread comparison
-- Predict point margin
-- Add team logos and team colors
-- Improve dashboard styling
-- Deploy the dashboard publicly
+Betting-market comparisons remain a possible future direction rather than
+a current project commitment.
 
 ## Author
 
-Created by Caleb Linsenbardt.
+**Caleb Linsenbardt**
+
+Fourth & Forecast combines hands-on data science learning with the goal
+of building a useful, transparent NFL forecasting dashboard.
