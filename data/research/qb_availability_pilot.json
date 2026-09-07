@@ -1,0 +1,46 @@
+[
+  {
+    "game_id": "2025_08_SF_HOU",
+    "team": "SF",
+    "availability_player": "Brock Purdy",
+    "availability_status": "out",
+    "reported_starter": null,
+    "published_at": "2025-10-24T22:05:45.817Z",
+    "modified_at": "2025-10-24T22:05:45.817Z",
+    "archive_verified": false,
+    "source_url": "https://www.49ers.com/news/lenoir-questionable-purdy-out-vs-texans-injury-report-ahead-of-sfvshou"
+  },
+  {
+    "game_id": "2025_09_SF_NYG",
+    "team": "SF",
+    "availability_player": "Brock Purdy",
+    "availability_status": "questionable",
+    "reported_starter": "Mac Jones",
+    "published_at": "2025-10-31T21:00:00Z",
+    "modified_at": "2025-10-31T21:19:55.17Z",
+    "archive_verified": false,
+    "source_url": "https://www.49ers.com/news/purdy-winters-questionable-vs-giants-injury-report-ahead-of-sfvsnyg"
+  },
+  {
+    "game_id": "2025_10_LA_SF",
+    "team": "SF",
+    "availability_player": "Brock Purdy",
+    "availability_status": "questionable",
+    "reported_starter": "Mac Jones",
+    "published_at": "2025-11-07T22:55:00Z",
+    "modified_at": "2025-11-07T22:54:40.237Z",
+    "archive_verified": false,
+    "source_url": "https://www.49ers.com/news/bethune-white-questionable-vs-rams-injury-report-ahead-of-larvssf"
+  },
+  {
+    "game_id": "2025_11_SF_ARI",
+    "team": "SF",
+    "availability_player": null,
+    "availability_status": null,
+    "reported_starter": "Brock Purdy",
+    "published_at": "2025-11-14T22:10:45Z",
+    "modified_at": "2025-11-14T23:10:45.319Z",
+    "archive_verified": false,
+    "source_url": "https://www.49ers.com/video/shanahan-provides-final-injury-updates-ahead-of-sfvsaz-purdy-pearsall"
+  }
+]
