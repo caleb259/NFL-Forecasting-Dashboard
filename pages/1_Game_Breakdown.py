@@ -6,6 +6,7 @@ sys.path.append("src")
 
 from team_info import get_team_logo, get_team_name, get_team_primary_color
 from style import apply_global_styles, page_header, section_header, clean_column_names
+from current_season_views import render_current_season
 
 
 st.set_page_config(
@@ -32,8 +33,18 @@ def load_modeling_data():
 page_header(
     title="Game Breakdown",
     icon="🏈",
-    subtitle="Select a specific game to view the model prediction, final result, and feature values used by the model."
+    subtitle="Explore the current season or switch to the historical model evaluation."
 )
+
+view_choice = st.radio(
+    "Season view",
+    ["Current season", "2025 historical evaluation"],
+    horizontal=True,
+)
+
+if view_choice == "Current season":
+    render_current_season("game")
+    st.stop()
 
 try:
     predictions = load_predictions()

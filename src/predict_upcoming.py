@@ -22,6 +22,7 @@ from season_carryover import (
     apply_upcoming_scoring_carryover,
 )
 import argparse
+from forecast_archive import save_forecast_snapshot
 
 
 TRAIN_START_SEASON = 2018
@@ -800,6 +801,12 @@ def main(dry_run=False):
     print("Creating projected playoff picture...")
     playoff_seeds, first_teams_out, playoff_games, super_bowl_summary = (
         simulate_full_playoffs(projected_records)
+    )
+
+    save_forecast_snapshot(
+        predictions,
+        schedules_2026,
+        CURRENT_SEASON,
     )
 
     save_csv(predictions, PREDICTION_OUTPUT_PATH)

@@ -1,7 +1,7 @@
 {
     "afc_champion": "BUF",
-    "nfc_champion": "SEA",
-    "super_bowl_matchup": "BUF vs SEA",
+    "nfc_champion": "SF",
+    "super_bowl_matchup": "BUF vs SF",
     "super_bowl_champion": "BUF",
-    "super_bowl_runner_up": "SEA"
+    "super_bowl_runner_up": "SF"
 }

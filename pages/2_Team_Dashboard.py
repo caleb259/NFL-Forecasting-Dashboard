@@ -6,6 +6,7 @@ sys.path.append("src")
 
 from team_info import get_team_logo, get_team_name, get_team_primary_color
 from style import apply_global_styles, page_header, section_header, clean_column_names
+from current_season_views import render_current_season
 
 
 st.set_page_config(
@@ -207,8 +208,18 @@ def render_2026_team_game_card(row, selected_team, selected_team_logo, selected_
 page_header(
     title="Team Dashboard",
     icon="🏟️",
-    subtitle="Select a team to view its 2025 games, model predictions, and team-level prediction performance."
+    subtitle="Explore the current season or switch to the historical model evaluation."
 )
+
+view_choice = st.radio(
+    "Season view",
+    ["Current season", "2025 historical evaluation"],
+    horizontal=True,
+)
+
+if view_choice == "Current season":
+    render_current_season("team")
+    st.stop()
 
 try:
     predictions = load_predictions()

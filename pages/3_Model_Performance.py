@@ -4,6 +4,7 @@ import sys
 sys.path.append("src")
 
 from style import apply_global_styles, page_header, section_header, clean_column_names
+from current_season_views import render_current_season
 
 
 st.set_page_config(
@@ -23,8 +24,18 @@ def load_predictions():
 page_header(
     title="Model Performance",
     icon="📊",
-    subtitle="This page evaluates how well the current NFL prediction model performed on the 2025 testing season."
+    subtitle="Explore the current season or switch to the historical model evaluation."
 )
+
+view_choice = st.radio(
+    "Season view",
+    ["Current season", "2025 historical evaluation"],
+    horizontal=True,
+)
+
+if view_choice == "Current season":
+    render_current_season("performance")
+    st.stop()
 
 try:
     predictions = load_predictions()

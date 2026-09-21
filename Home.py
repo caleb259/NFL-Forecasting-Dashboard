@@ -320,6 +320,104 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+section_header(f"{forecast_season} Season Results")
+
+try:
+    current_schedule = pd.read_csv(
+        f"data/processed/schedules_{int(forecast_season)}.csv"
+    )
+
+    current_schedule = current_schedule.loc[
+        current_schedule["season"].eq(int(forecast_season))
+        & current_schedule["game_type"].isin(
+            ["REG", "WC", "DIV", "CON", "SB"]
+        )
+    ].copy()
+
+    for score_column in ["home_score", "away_score"]:
+        current_schedule[score_column] = pd.to_numeric(
+            current_schedule[score_column], errors="raise"
+        )
+
+    completed = current_schedule.dropna(
+        subset=["home_score", "away_score"]
+    ).copy()
+
+    st.caption(
+        f"Results from the saved schedule. "
+        f"Forecast update timestamp: {last_updated_text}. "
+        "Scores refresh when the data update runs; this is not a live scoreboard."
+    )
+
+    if completed.empty:
+        st.info(
+            f"No completed {forecast_season} games are present "
+            "in the saved schedule yet."
+        )
+    else:
+        completed["gameday"] = pd.to_datetime(completed["gameday"])
+        completed["home_score"] = completed["home_score"].astype(int)
+        completed["away_score"] = completed["away_score"].astype(int)
+
+        completed["winner"] = completed.apply(
+            lambda row: (
+                "Tie"
+                if row["home_score"] == row["away_score"]
+                else row["home_team"]
+                if row["home_score"] > row["away_score"]
+                else row["away_team"]
+            ),
+            axis=1,
+        )
+
+        col1, col2 = st.columns(2)
+        col1.metric(
+            f"{forecast_season} Games Completed", len(completed)
+        )
+        col2.metric(
+            "Latest Week With Results", int(completed["week"].max())
+        )
+
+        result_weeks = sorted(
+            completed["week"].astype(int).unique(), reverse=True
+        )
+        result_week = st.selectbox(
+            f"Select a {forecast_season} results week",
+            result_weeks,
+            key="current_season_results_week",
+        )
+
+        results_table = completed.loc[
+            completed["week"].eq(result_week),
+            [
+                "gameday", "away_team", "away_score",
+                "home_team", "home_score", "winner",
+            ],
+        ].sort_values(["gameday", "away_team"]).copy()
+
+        results_table["gameday"] = (
+            results_table["gameday"].dt.strftime("%Y-%m-%d")
+        )
+
+        st.dataframe(
+            clean_column_names(results_table),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+        st.caption(
+            "These are actual game results. Current-season prediction "
+            "accuracy requires predictions preserved before kickoff."
+        )
+
+except FileNotFoundError:
+    st.info(
+        "The current-season schedule is unavailable. "
+        "Run the forecast update to generate it."
+    )
+
+st.divider()
+
 try:
     upcoming_predictions = load_upcoming_predictions()
 
@@ -484,6 +582,14 @@ st.divider()
 try:
     predictions = load_predictions()
 
+    section_header("2025 Historical Model Evaluation")
+    st.caption(
+        "Historical test results below are separate from "
+        "the current-season scoreboard."
+    )
+
+    # Summary metrics
+
     # Summary metrics
     accuracy = predictions["correct_prediction"].mean()
     total_games = len(predictions)
@@ -492,14 +598,13 @@ try:
 
     col1, col2, col3, col4 = st.columns(4)
 
-    col1.metric("Model Accuracy", f"{accuracy:.2%}")
+    col1.metric("2025 Test Accuracy", f"{accuracy:.2%}")
     col2.metric("Games Tested", total_games)
     col3.metric("Correct Picks", int(correct_predictions))
     col4.metric("Incorrect Picks", int(incorrect_predictions))
 
     st.divider()
 
-    section_header("2025 Historical Model Evaluation")
 
     # Week selector
     weeks = sorted(predictions["week"].unique())
