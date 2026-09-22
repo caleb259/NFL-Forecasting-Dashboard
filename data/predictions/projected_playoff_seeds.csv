@@ -1,15 +1,15 @@
 team,actual_wins,actual_losses,projected_wins,projected_losses,expected_wins,expected_losses,conference,division,seed,seed_type
 BUF,2,0,17,0,12.7,4.3,AFC,AFC East,1,Division Winner
-BAL,1,1,15,2,10.5,6.5,AFC,AFC North,2,Division Winner
-JAX,1,1,15,2,10.5,6.5,AFC,AFC South,3,Division Winner
-KC,2,0,14,3,11.9,5.1,AFC,AFC West,4,Division Winner
-CIN,2,0,13,4,11.1,5.9,AFC,AFC North,5,Wild Card
+KC,2,0,15,2,12.0,5.0,AFC,AFC West,2,Division Winner
+BAL,1,1,15,2,10.5,6.5,AFC,AFC North,3,Division Winner
+JAX,1,1,15,2,10.5,6.5,AFC,AFC South,4,Division Winner
+CIN,2,0,13,4,11.0,6.0,AFC,AFC North,5,Wild Card
 NE,1,1,10,7,9.2,7.8,AFC,AFC East,6,Wild Card
-PIT,1,1,9,8,8.5,8.5,AFC,AFC North,7,Wild Card
-SEA,2,0,16,1,11.9,5.1,NFC,NFC West,1,Division Winner
-DET,1,1,15,2,10.7,6.3,NFC,NFC North,2,Division Winner
-PHI,2,0,14,3,11.3,5.7,NFC,NFC East,3,Division Winner
+PIT,1,1,9,8,8.6,8.4,AFC,AFC North,7,Wild Card
+SEA,2,0,16,1,12.0,5.0,NFC,NFC West,1,Division Winner
+DET,1,1,15,2,10.8,6.2,NFC,NFC North,2,Division Winner
+PHI,2,0,14,3,11.5,5.5,NFC,NFC East,3,Division Winner
 TB,0,2,8,9,7.4,9.6,NFC,NFC South,4,Division Winner
-SF,2,0,15,2,12.1,4.9,NFC,NFC West,5,Wild Card
+SF,2,0,15,2,12.2,4.8,NFC,NFC West,5,Wild Card
 MIN,2,0,13,4,10.3,6.7,NFC,NFC North,6,Wild Card
-LA,0,1,11,6,9.5,7.5,NFC,NFC West,7,Wild Card
+LA,1,1,10,7,9.4,7.6,NFC,NFC West,7,Wild Card

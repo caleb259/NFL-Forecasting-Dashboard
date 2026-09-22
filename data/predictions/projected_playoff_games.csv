@@ -1,10 +1,10 @@
 conference,round,home_seed,away_seed,home_team,away_team,winner,loser
-AFC,Wild Card,2.0,7.0,BAL,PIT,BAL,PIT
-AFC,Wild Card,3.0,6.0,JAX,NE,JAX,NE
-AFC,Wild Card,4.0,5.0,KC,CIN,KC,CIN
-AFC,Divisional,1.0,4.0,BUF,KC,BUF,KC
-AFC,Divisional,2.0,3.0,BAL,JAX,BAL,JAX
-AFC,Conference Championship,1.0,2.0,BUF,BAL,BUF,BAL
+AFC,Wild Card,2.0,7.0,KC,PIT,KC,PIT
+AFC,Wild Card,3.0,6.0,BAL,NE,BAL,NE
+AFC,Wild Card,4.0,5.0,JAX,CIN,CIN,JAX
+AFC,Divisional,1.0,5.0,BUF,CIN,BUF,CIN
+AFC,Divisional,2.0,3.0,KC,BAL,KC,BAL
+AFC,Conference Championship,1.0,2.0,BUF,KC,BUF,KC
 NFC,Wild Card,2.0,7.0,DET,LA,DET,LA
 NFC,Wild Card,3.0,6.0,PHI,MIN,PHI,MIN
 NFC,Wild Card,4.0,5.0,TB,SF,SF,TB
