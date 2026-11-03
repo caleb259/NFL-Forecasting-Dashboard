@@ -1,14 +1,14 @@
 conference,round,home_seed,away_seed,home_team,away_team,winner,loser
-AFC,Wild Card,2.0,7.0,JAX,NE,JAX,NE
-AFC,Wild Card,3.0,6.0,KC,PIT,KC,PIT
-AFC,Wild Card,4.0,5.0,CIN,DEN,DEN,CIN
-AFC,Divisional,1.0,5.0,BUF,DEN,BUF,DEN
-AFC,Divisional,2.0,3.0,JAX,KC,KC,JAX
-AFC,Conference Championship,1.0,3.0,BUF,KC,BUF,KC
-NFC,Wild Card,2.0,7.0,MIN,CHI,MIN,CHI
-NFC,Wild Card,3.0,6.0,DAL,SEA,SEA,DAL
-NFC,Wild Card,4.0,5.0,TB,DET,DET,TB
-NFC,Divisional,1.0,6.0,SF,SEA,SF,SEA
-NFC,Divisional,2.0,5.0,MIN,DET,MIN,DET
-NFC,Conference Championship,1.0,2.0,SF,MIN,SF,MIN
+AFC,Wild Card,2.0,7.0,CIN,NE,CIN,NE
+AFC,Wild Card,3.0,6.0,JAX,KC,JAX,KC
+AFC,Wild Card,4.0,5.0,DEN,PIT,DEN,PIT
+AFC,Divisional,1.0,4.0,BUF,DEN,BUF,DEN
+AFC,Divisional,2.0,3.0,CIN,JAX,CIN,JAX
+AFC,Conference Championship,1.0,2.0,BUF,CIN,BUF,CIN
+NFC,Wild Card,2.0,7.0,DET,SEA,DET,SEA
+NFC,Wild Card,3.0,6.0,NYG,LA,NYG,LA
+NFC,Wild Card,4.0,5.0,TB,MIN,MIN,TB
+NFC,Divisional,1.0,5.0,SF,MIN,SF,MIN
+NFC,Divisional,2.0,3.0,DET,NYG,DET,NYG
+NFC,Conference Championship,1.0,2.0,SF,DET,SF,DET
 NFL,Super Bowl,,,BUF,SF,BUF,SF
