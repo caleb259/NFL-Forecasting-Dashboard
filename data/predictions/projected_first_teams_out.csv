@@ -1,7 +1,7 @@
 team,actual_wins,actual_losses,projected_wins,projected_losses,expected_wins,expected_losses,conference,division,rank_out
-HOU,2,5,9,8,8.1,8.9,AFC,AFC South,8
-CLE,5,3,8,9,8.8,8.2,AFC,AFC North,9
-BAL,4,4,8,9,8.2,8.8,AFC,AFC North,10
-CHI,6,2,10,7,10.9,6.1,NFC,NFC North,8
-GB,5,3,9,8,9.3,7.7,NFC,NFC North,9
-DAL,3,5,8,9,7.9,9.1,NFC,NFC East,10
+NE,5,4,9,8,9.2,7.8,AFC,AFC East,8
+CLE,5,4,7,10,8.0,9.0,AFC,AFC North,9
+BAL,4,5,7,10,7.7,9.3,AFC,AFC North,10
+MIN,6,2,10,7,10.5,6.5,NFC,NFC North,8
+GB,6,3,9,8,10.0,7.0,NFC,NFC North,9
+DAL,4,5,8,9,8.5,8.5,NFC,NFC East,10
